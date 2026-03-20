@@ -24,7 +24,7 @@ const AboutSection = () => (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
             <div className="text-center relative z-10">
               <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary mx-auto mb-6 flex items-center justify-center">
-                <span className="font-heading text-3xl font-bold text-primary">GL</span>
+                <span className="font-heading text-3xl font-bold text-primary">MC</span>
               </div>
               <p className="font-heading text-xl font-semibold text-foreground">Your Growth Partner</p>
               <p className="text-sm text-muted-foreground mt-2">Digital Marketing · Brand · Lead Gen</p>

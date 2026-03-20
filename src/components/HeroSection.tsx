@@ -14,7 +14,7 @@ const HeroSection = () => (
       <div className="max-w-3xl">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20">
-            Digital Marketing · Brand Strategy · Lead Generation
+            Marvin Catajusan · Digital Marketing · Brand Strategy · Lead Generation
           </span>
         </motion.div>
 
