@@ -21,15 +21,16 @@ const AboutSection = () => (
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="aspect-square rounded-2xl card-glass p-8 flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
-            <div className="text-center relative z-10">
-              <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary mx-auto mb-6 flex items-center justify-center">
-                <span className="font-heading text-3xl font-bold text-primary">MC</span>
-              </div>
-              <p className="font-heading text-xl font-semibold text-foreground">Your Growth Partner</p>
-              <p className="text-sm text-muted-foreground mt-2">Digital Marketing · Brand · Lead Gen</p>
-            </div>
+          <div className="aspect-square rounded-2xl card-glass p-4 flex items-center justify-center relative overflow-hidden">
+            <img
+              src={marvinHeadshot}
+              alt="Marvin Catajusan — Digital Marketing Specialist"
+              className="w-full h-full object-cover rounded-xl"
+            />
+          </div>
+          <div className="text-center mt-4">
+            <p className="font-heading text-xl font-semibold text-foreground">Marvin Catajusan</p>
+            <p className="text-sm text-muted-foreground mt-1">Digital Marketing · Brand · Lead Gen</p>
           </div>
         </motion.div>
 
