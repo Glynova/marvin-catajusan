@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, TrendingUp, Target, Zap } from "lucide-react";
+import marvinHero from "@/assets/marvin-photo-2.png";
 
 const stats = [
   { icon: TrendingUp, value: "300%+", label: "Avg. ROI Increase" },
