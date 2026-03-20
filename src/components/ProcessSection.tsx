@@ -80,7 +80,7 @@ const ProcessSection = () => (
               </div>
 
               {/* Center dot */}
-              <div className="hidden md:flex w-4 h-4 rounded-full bg-primary border-4 border-background absolute left-1/2 -translate-x-1/2 glow-gold" style={{ top: `${i * 25 + 2}%` }} />
+              <div className="hidden md:flex w-4 h-4 rounded-full bg-primary border-4 border-background absolute left-1/2 -translate-x-1/2 glow-primary" style={{ top: `${i * 25 + 2}%` }} />
 
               <div className="md:w-1/2" />
             </motion.div>

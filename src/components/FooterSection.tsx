@@ -21,8 +21,8 @@ const FooterSection = () => (
     {/* Bottom */}
     <div className="border-t border-border">
       <div className="section-container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <a href="#" className="font-heading text-lg font-bold gradient-text">GROWTHLAB</a>
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} GrowthLab. All rights reserved.</p>
+        <a href="#" className="font-heading text-lg font-bold gradient-text">GLYNOVA</a>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Glynova. All rights reserved.</p>
         <div className="flex gap-6">
           {["LinkedIn", "Twitter", "Instagram"].map((s) => (
             <a key={s} href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">{s}</a>
