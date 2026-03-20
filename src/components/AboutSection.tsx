@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
+import marvinHeadshot from "@/assets/marvin-headshot.jpg";
 
 const strengths = [
   "Data-driven campaign strategy & execution",
