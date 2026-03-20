@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
-import marvinHeadshot from "@/assets/marvin-headshot.jpg";
+import marvinPhoto from "@/assets/marvin-photo-1.png";
 
 const strengths = [
   "Data-driven campaign strategy & execution",
@@ -23,9 +23,9 @@ const AboutSection = () => (
         >
           <div className="aspect-square rounded-2xl card-glass p-4 flex items-center justify-center relative overflow-hidden">
             <img
-              src={marvinHeadshot}
+              src={marvinPhoto}
               alt="Marvin Catajusan — Digital Marketing Specialist"
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-cover object-top rounded-xl"
             />
           </div>
           <div className="text-center mt-4">
