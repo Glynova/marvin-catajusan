@@ -8,6 +8,7 @@ import PortfolioSection from "@/components/PortfolioSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import LeadCaptureSection from "@/components/LeadCaptureSection";
 import FooterSection from "@/components/FooterSection";
+import ChatBot from "@/components/ChatBot";
 
 const Index = () => (
   <>
@@ -21,6 +22,7 @@ const Index = () => (
     <TestimonialsSection />
     <LeadCaptureSection />
     <FooterSection />
+    <ChatBot />
   </>
 );
 

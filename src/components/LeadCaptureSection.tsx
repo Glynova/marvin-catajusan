@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, CheckCircle2, Clock, Gift, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock, Gift, Zap, Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import ReactMarkdown from "react-markdown";
 
 const benefits = [
   { icon: Zap, text: "Full marketing audit of your current setup" },
@@ -14,12 +16,35 @@ const benefits = [
 
 const LeadCaptureSection = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [aiResponse, setAiResponse] = useState("");
+  const [loadingAi, setLoadingAi] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const name = formData.get("name") as string;
+    const business = formData.get("business") as string;
+    const challenge = formData.get("challenge") as string;
+
     setSubmitted(true);
-    toast({ title: "Request received!", description: "I'll be in touch within 24 hours." });
+    setLoadingAi(true);
+    toast({ title: "Request received!", description: "Generating your personalized insights…" });
+
+    try {
+      const { data, error } = await supabase.functions.invoke("lead-response", {
+        body: { name, business, challenge },
+      });
+
+      if (error) throw error;
+      setAiResponse(data?.response || "Thanks for reaching out! Marvin will be in touch within 24 hours.");
+    } catch (err) {
+      console.error("AI response error:", err);
+      setAiResponse("Thanks for reaching out! Marvin will review your info and get back to you within 24 hours with personalized insights for your business.");
+    } finally {
+      setLoadingAi(false);
+    }
   };
 
   return (
@@ -63,20 +88,36 @@ const LeadCaptureSection = () => {
             viewport={{ once: true }}
           >
             {submitted ? (
-              <div className="card-glass p-12 text-center">
-                <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
-                <h3 className="font-heading text-2xl font-bold mb-2">You're In!</h3>
-                <p className="text-muted-foreground">I'll review your info and reach out within 24 hours with your personalized growth audit.</p>
+              <div className="card-glass p-8 text-center space-y-4">
+                <CheckCircle2 className="h-14 w-14 text-primary mx-auto" />
+                <h3 className="font-heading text-2xl font-bold">You're In!</h3>
+
+                {loadingAi ? (
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground py-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Generating personalized insights…</span>
+                  </div>
+                ) : (
+                  <div className="text-left bg-primary/5 border border-primary/10 rounded-xl p-5 mt-2">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-4 w-4 text-accent" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-accent">AI-Powered Insight</span>
+                    </div>
+                    <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed [&>p]:mb-2 [&>p:last-child]:mb-0">
+                      <ReactMarkdown>{aiResponse}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="card-glass p-8 space-y-4">
                 <h3 className="font-heading text-xl font-bold mb-2">Book Your Free Strategy Call</h3>
                 <p className="text-sm text-muted-foreground mb-4">Fill in your details and I'll reach out within 24 hours.</p>
-                <Input placeholder="Your Name" required className="bg-secondary border-border" />
-                <Input placeholder="Email Address" type="email" required className="bg-secondary border-border" />
-                <Input placeholder="Business Name" className="bg-secondary border-border" />
-                <Input placeholder="Website URL (optional)" className="bg-secondary border-border" />
-                <Textarea placeholder="What's your biggest marketing challenge?" rows={3} className="bg-secondary border-border" />
+                <Input name="name" placeholder="Your Name" required className="bg-secondary border-border" />
+                <Input name="email" placeholder="Email Address" type="email" required className="bg-secondary border-border" />
+                <Input name="business" placeholder="Business Name" className="bg-secondary border-border" />
+                <Input name="website" placeholder="Website URL (optional)" className="bg-secondary border-border" />
+                <Textarea name="challenge" placeholder="What's your biggest marketing challenge?" rows={3} className="bg-secondary border-border" />
                 <Button variant="hero" size="lg" className="w-full" type="submit">
                   Claim Your Free Audit <ArrowRight className="ml-1" />
                 </Button>
