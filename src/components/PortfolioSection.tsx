@@ -40,6 +40,22 @@ const projects = [
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
 const PortfolioSection = () => (
   <section id="portfolio" className="section-padding border-t border-border">
     <div className="section-container">
@@ -56,14 +72,17 @@ const PortfolioSection = () => (
         <p className="text-muted-foreground">A selection of campaigns, brands, and systems I've built for clients.</p>
       </motion.div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((p, i) => (
+      <motion.div
+        className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+      >
+        {projects.map((p) => (
           <motion.div
             key={p.title}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
+            variants={cardVariants}
             className="card-glass p-6 group hover:border-primary/30 transition-colors cursor-pointer"
           >
             <div className="flex items-start justify-between mb-3">
@@ -79,7 +98,7 @@ const PortfolioSection = () => (
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   </section>
 );

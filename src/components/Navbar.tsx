@@ -14,6 +14,7 @@ const navLinks = [
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [dark, setDark] = useState(() => {
     if (typeof window !== "undefined") {
       return document.documentElement.classList.contains("dark");
@@ -29,9 +30,22 @@ const Navbar = () => {
     }
   }, [dark]);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="section-container flex items-center justify-between h-16">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-background/60 backdrop-blur-xl border-b border-primary/20 shadow-sm"
+          : "bg-background/30 backdrop-blur-lg border-b border-transparent"
+      }`}
+      style={{ height: scrolled ? 56 : 64 }}
+    >
+      <div className="section-container flex items-center justify-between h-full">
         <a href="#" className="font-heading text-xl font-bold gradient-text">
           GLYNOVA
         </a>
@@ -76,7 +90,7 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden bg-card border-b border-border overflow-hidden"
+            className="md:hidden bg-background/80 backdrop-blur-xl border-b border-border overflow-hidden"
           >
             <div className="section-container py-4 flex flex-col gap-4">
               {navLinks.map((l) => (
