@@ -25,8 +25,25 @@ const LeadCaptureSection = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
     const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
     const business = formData.get("business") as string;
     const challenge = formData.get("challenge") as string;
+    const budget = formData.get("budget") as string;
+
+    // Save lead to database
+    try {
+      await supabase.from("leads").insert({
+        name,
+        email,
+        phone: phone || "",
+        message: challenge || "",
+        budget: budget || "",
+        status: "New",
+      });
+    } catch (err) {
+      console.error("Lead save error:", err);
+    }
 
     setSubmitted(true);
     setLoadingAi(true);
@@ -115,8 +132,9 @@ const LeadCaptureSection = () => {
                 <p className="text-sm text-muted-foreground mb-4">Fill in your details and I'll reach out within 24 hours.</p>
                 <Input name="name" placeholder="Your Name" required className="bg-secondary border-border" />
                 <Input name="email" placeholder="Email Address" type="email" required className="bg-secondary border-border" />
+                <Input name="phone" placeholder="Phone (optional)" className="bg-secondary border-border" />
                 <Input name="business" placeholder="Business Name" className="bg-secondary border-border" />
-                <Input name="website" placeholder="Website URL (optional)" className="bg-secondary border-border" />
+                <Input name="budget" placeholder="Budget Range (optional)" className="bg-secondary border-border" />
                 <Textarea name="challenge" placeholder="What's your biggest marketing challenge?" rows={3} className="bg-secondary border-border" />
                 <Button variant="hero" size="lg" className="w-full" type="submit">
                   Claim Your Free Audit <ArrowRight className="ml-1" />

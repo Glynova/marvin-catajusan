@@ -1,0 +1,190 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image } from "lucide-react";
+
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  budget: string;
+  status: string;
+  submitted_at: string;
+}
+
+const statuses = ["New", "Contacted", "Qualified", "Closed", "Lost"];
+
+const AdminLeads = () => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [search, setSearch] = useState("");
+  const [sortAsc, setSortAsc] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    checkAuth();
+    fetchLeads();
+
+    // Realtime subscription for new leads
+    const channel = supabase
+      .channel("leads-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "leads" }, (payload) => {
+        const newLead = payload.new as Lead;
+        setLeads((prev) => [newLead, ...prev]);
+        toast({ title: "🔔 New Lead!", description: `${newLead.name} just submitted a form.` });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { navigate("/admin-portal"); return; }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "admin");
+
+    if (!roles || roles.length === 0) {
+      await supabase.auth.signOut();
+      navigate("/admin-portal");
+    }
+  };
+
+  const fetchLeads = async () => {
+    const { data, error } = await supabase
+      .from("leads")
+      .select("*")
+      .order("submitted_at", { ascending: false });
+
+    if (!error && data) setLeads(data as Lead[]);
+    setLoading(false);
+  };
+
+  const updateStatus = async (id: string, status: string) => {
+    await supabase.from("leads").update({ status }).eq("id", id);
+    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin-portal");
+  };
+
+  const filtered = leads
+    .filter((l) => l.name.toLowerCase().includes(search.toLowerCase()) || l.email.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => sortAsc
+      ? new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime()
+      : new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+    );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-background/60 backdrop-blur-xl sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <a href="/" className="font-heading text-lg font-bold gradient-text">GLYNOVA</a>
+            <span className="text-xs text-muted-foreground">Admin</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/leads")} className="gap-1">
+              <LayoutDashboard className="h-4 w-4" /> Leads
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/portfolio")} className="gap-1">
+              <Image className="h-4 w-4" /> Portfolio
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1">
+              <LogOut className="h-4 w-4" /> Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <h1 className="font-heading text-2xl font-bold mb-6">Lead Management</h1>
+
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name or email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 bg-secondary border-border"
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setSortAsc(!sortAsc)} className="gap-1 shrink-0">
+            <ArrowUpDown className="h-4 w-4" /> {sortAsc ? "Oldest first" : "Newest first"}
+          </Button>
+        </div>
+
+        <div className="card-glass overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead className="hidden md:table-cell">Phone</TableHead>
+                  <TableHead className="hidden lg:table-cell">Message</TableHead>
+                  <TableHead className="hidden md:table-cell">Budget</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden sm:table-cell">Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">Loading…</TableCell>
+                  </TableRow>
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">No leads found.</TableCell>
+                  </TableRow>
+                ) : (
+                  filtered.map((lead) => (
+                    <TableRow key={lead.id}>
+                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      <TableCell className="text-sm">{lead.email}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">{lead.phone || "—"}</TableCell>
+                      <TableCell className="hidden lg:table-cell text-sm max-w-[200px] truncate">{lead.message || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">{lead.budget || "—"}</TableCell>
+                      <TableCell>
+                        <Select value={lead.status} onValueChange={(v) => updateStatus(lead.id, v)}>
+                          <SelectTrigger className="w-[120px] h-8 text-xs bg-secondary border-border">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statuses.map((s) => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">
+                        {new Date(lead.submitted_at).toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AdminLeads;
