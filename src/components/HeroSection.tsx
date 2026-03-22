@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, TrendingUp, Target, Zap } from "lucide-react";
 import marvinHero from "@/assets/marvin-photo-2.png";
+import LazyImage from "@/components/LazyImage";
 
 const stats = [
   { icon: TrendingUp, value: "300%+", label: "Avg. ROI Increase" },
@@ -79,10 +80,11 @@ const HeroSection = () => (
         >
           <div className="relative">
             <div className="aspect-[3/4] rounded-2xl overflow-hidden card-glass p-3">
-              <img
+              <LazyImage
                 src={marvinHero}
-                alt="Marvin Catajusan"
+                alt="Marvin Catajusan — Growth Strategist & Digital Marketing Specialist"
                 className="w-full h-full object-cover object-top rounded-xl"
+                wrapperClassName="w-full h-full rounded-xl"
               />
             </div>
             <div className="absolute -bottom-4 -left-4 bg-primary text-primary-foreground px-5 py-3 rounded-xl shadow-lg">
