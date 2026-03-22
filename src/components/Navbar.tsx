@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Results", href: "#results" },
   { label: "Portfolio", href: "#portfolio" },
   { label: "Testimonials", href: "#testimonials" },
+  { label: "Admin Portal", href: "/admin-portal" },
 ];
 
 const Navbar = () => {
