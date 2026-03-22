@@ -23,10 +23,11 @@ const AboutSection = () => (
           transition={{ duration: 0.6 }}
         >
           <div className="aspect-square rounded-2xl card-glass p-4 flex items-center justify-center relative overflow-hidden">
-            <img
+            <LazyImage
               src={marvinPhoto}
               alt="Marvin Catajusan — Digital Marketing Specialist"
               className="w-full h-full object-cover object-top rounded-xl"
+              wrapperClassName="w-full h-full rounded-xl"
             />
           </div>
           <div className="text-center mt-4">
