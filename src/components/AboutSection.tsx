@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import marvinPhoto from "@/assets/marvin-photo-1.png";
+import LazyImage from "@/components/LazyImage";
 
 const strengths = [
   "Data-driven campaign strategy & execution",
