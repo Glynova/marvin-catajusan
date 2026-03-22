@@ -26,14 +26,23 @@ const AdminLeads = () => {
   const [search, setSearch] = useState("");
   const [sortAsc, setSortAsc] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    checkAuth();
-    fetchLeads();
+    const init = async () => {
+      const isAdmin = await checkAuth();
+      if (isAdmin) {
+        setAuthed(true);
+        await fetchLeads();
+      }
+    };
+    init();
+  }, []);
 
-    // Realtime subscription for new leads
+  useEffect(() => {
+    if (!authed) return;
     const channel = supabase
       .channel("leads-realtime")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "leads" }, (payload) => {
@@ -44,11 +53,11 @@ const AdminLeads = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [authed]);
 
-  const checkAuth = async () => {
+  const checkAuth = async (): Promise<boolean> => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { navigate("/admin-portal"); return; }
+    if (!session) { navigate("/admin-portal"); return false; }
 
     const { data: roles } = await supabase
       .from("user_roles")
@@ -59,7 +68,9 @@ const AdminLeads = () => {
     if (!roles || roles.length === 0) {
       await supabase.auth.signOut();
       navigate("/admin-portal");
+      return false;
     }
+    return true;
   };
 
   const fetchLeads = async () => {

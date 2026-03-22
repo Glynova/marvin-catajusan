@@ -88,15 +88,21 @@ const AdminPortfolio = () => {
   );
 
   useEffect(() => {
-    checkAuth();
-    fetchItems();
+    const init = async () => {
+      const isAdmin = await checkAuth();
+      if (isAdmin) {
+        await fetchItems();
+      }
+    };
+    init();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuth = async (): Promise<boolean> => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { navigate("/admin-portal"); return; }
+    if (!session) { navigate("/admin-portal"); return false; }
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id).eq("role", "admin");
-    if (!roles || roles.length === 0) { await supabase.auth.signOut(); navigate("/admin-portal"); }
+    if (!roles || roles.length === 0) { await supabase.auth.signOut(); navigate("/admin-portal"); return false; }
+    return true;
   };
 
   const fetchItems = async () => {
