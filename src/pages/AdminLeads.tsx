@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image } from "lucide-react";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus } from "lucide-react";
 interface Lead {
   id: string;
   name: string;
@@ -27,6 +28,8 @@ const AdminLeads = () => {
   const [sortAsc, setSortAsc] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -93,6 +96,28 @@ const AdminLeads = () => {
     navigate("/admin-portal");
   };
 
+  const handleAddLead = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAddLoading(true);
+    const fd = new FormData(e.currentTarget);
+    const newLead = {
+      name: fd.get("name") as string,
+      email: fd.get("email") as string,
+      phone: (fd.get("phone") as string) || "",
+      message: (fd.get("message") as string) || "",
+      budget: (fd.get("budget") as string) || "",
+      status: "New",
+    };
+    const { error } = await supabase.from("leads").insert(newLead);
+    setAddLoading(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to add lead.", variant: "destructive" });
+    } else {
+      toast({ title: "Lead added!", description: `${newLead.name} has been added.` });
+      setAddOpen(false);
+    }
+  };
+
   const filtered = leads
     .filter((l) => l.name.toLowerCase().includes(search.toLowerCase()) || l.email.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortAsc
@@ -123,7 +148,31 @@ const AdminLeads = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="font-heading text-2xl font-bold mb-6">Lead Management</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-heading text-2xl font-bold">Lead Management</h1>
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" size="sm" className="gap-1">
+                <Plus className="h-4 w-4" /> Add Lead
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add Lead Manually</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddLead} className="space-y-3 mt-2">
+                <Input name="name" placeholder="Full Name" required className="bg-secondary border-border" />
+                <Input name="email" placeholder="Email Address" type="email" required className="bg-secondary border-border" />
+                <Input name="phone" placeholder="Phone (optional)" className="bg-secondary border-border" />
+                <Input name="budget" placeholder="Budget Range (optional)" className="bg-secondary border-border" />
+                <Textarea name="message" placeholder="Business type, notes, or challenge…" rows={3} className="bg-secondary border-border" />
+                <Button type="submit" className="w-full" disabled={addLoading}>
+                  {addLoading ? "Saving…" : "Save Lead"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
