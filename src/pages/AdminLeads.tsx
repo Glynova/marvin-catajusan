@@ -28,6 +28,8 @@ const AdminLeads = () => {
   const [sortAsc, setSortAsc] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
