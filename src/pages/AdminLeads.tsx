@@ -148,7 +148,31 @@ const AdminLeads = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="font-heading text-2xl font-bold mb-6">Lead Management</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-heading text-2xl font-bold">Lead Management</h1>
+          <Dialog open={addOpen} onOpenChange={setAddOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default" size="sm" className="gap-1">
+                <Plus className="h-4 w-4" /> Add Lead
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add Lead Manually</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddLead} className="space-y-3 mt-2">
+                <Input name="name" placeholder="Full Name" required className="bg-secondary border-border" />
+                <Input name="email" placeholder="Email Address" type="email" required className="bg-secondary border-border" />
+                <Input name="phone" placeholder="Phone (optional)" className="bg-secondary border-border" />
+                <Input name="budget" placeholder="Budget Range (optional)" className="bg-secondary border-border" />
+                <Textarea name="message" placeholder="Business type, notes, or challenge…" rows={3} className="bg-secondary border-border" />
+                <Button type="submit" className="w-full" disabled={addLoading}>
+                  {addLoading ? "Saving…" : "Save Lead"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
