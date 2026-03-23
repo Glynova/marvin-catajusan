@@ -96,6 +96,28 @@ const AdminLeads = () => {
     navigate("/admin-portal");
   };
 
+  const handleAddLead = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setAddLoading(true);
+    const fd = new FormData(e.currentTarget);
+    const newLead = {
+      name: fd.get("name") as string,
+      email: fd.get("email") as string,
+      phone: (fd.get("phone") as string) || "",
+      message: (fd.get("message") as string) || "",
+      budget: (fd.get("budget") as string) || "",
+      status: "New",
+    };
+    const { error } = await supabase.from("leads").insert(newLead);
+    setAddLoading(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to add lead.", variant: "destructive" });
+    } else {
+      toast({ title: "Lead added!", description: `${newLead.name} has been added.` });
+      setAddOpen(false);
+    }
+  };
+
   const filtered = leads
     .filter((l) => l.name.toLowerCase().includes(search.toLowerCase()) || l.email.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortAsc
