@@ -105,6 +105,7 @@ const AdminLeads = () => {
       name: fd.get("name") as string,
       email: fd.get("email") as string,
       phone: (fd.get("phone") as string) || "",
+      business_name: (fd.get("business_name") as string) || "",
       message: (fd.get("message") as string) || "",
       budget: (fd.get("budget") as string) || "",
       status: "New",
