@@ -37,6 +37,7 @@ const LeadCaptureSection = () => {
         name,
         email,
         phone: phone || "",
+        business_name: business || "",
         message: challenge || "",
         budget: budget || "",
         status: "New",

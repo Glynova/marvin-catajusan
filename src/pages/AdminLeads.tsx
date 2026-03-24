@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus } from "lucide-react";
+import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus, Share2 } from "lucide-react";
 interface Lead {
   id: string;
   name: string;
   email: string;
   phone: string;
   message: string;
+  business_name: string;
   budget: string;
   status: string;
   submitted_at: string;
@@ -104,6 +105,7 @@ const AdminLeads = () => {
       name: fd.get("name") as string,
       email: fd.get("email") as string,
       phone: (fd.get("phone") as string) || "",
+      business_name: (fd.get("business_name") as string) || "",
       message: (fd.get("message") as string) || "",
       budget: (fd.get("budget") as string) || "",
       status: "New",
@@ -140,6 +142,9 @@ const AdminLeads = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate("/admin/portfolio")} className="gap-1">
               <Image className="h-4 w-4" /> Portfolio
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")} className="gap-1">
+              <Share2 className="h-4 w-4" /> Social
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1">
               <LogOut className="h-4 w-4" /> Logout
             </Button>
@@ -164,6 +169,7 @@ const AdminLeads = () => {
                 <Input name="name" placeholder="Full Name" required className="bg-secondary border-border" />
                 <Input name="email" placeholder="Email Address" type="email" required className="bg-secondary border-border" />
                 <Input name="phone" placeholder="Phone (optional)" className="bg-secondary border-border" />
+                <Input name="business_name" placeholder="Business Name / Type" className="bg-secondary border-border" />
                 <Input name="budget" placeholder="Budget Range (optional)" className="bg-secondary border-border" />
                 <Textarea name="message" placeholder="Business type, notes, or challenge…" rows={3} className="bg-secondary border-border" />
                 <Button type="submit" className="w-full" disabled={addLoading}>
@@ -197,6 +203,7 @@ const AdminLeads = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead className="hidden md:table-cell">Phone</TableHead>
+                  <TableHead className="hidden md:table-cell">Business</TableHead>
                   <TableHead className="hidden lg:table-cell">Message</TableHead>
                   <TableHead className="hidden md:table-cell">Budget</TableHead>
                   <TableHead>Status</TableHead>
@@ -206,11 +213,11 @@ const AdminLeads = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">Loading…</TableCell>
+                    <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">Loading…</TableCell>
                   </TableRow>
                 ) : filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">No leads found.</TableCell>
+                    <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No leads found.</TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((lead) => (
@@ -218,6 +225,7 @@ const AdminLeads = () => {
                       <TableCell className="font-medium">{lead.name}</TableCell>
                       <TableCell className="text-sm">{lead.email}</TableCell>
                       <TableCell className="hidden md:table-cell text-sm">{lead.phone || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">{lead.business_name || "—"}</TableCell>
                       <TableCell className="hidden lg:table-cell text-sm max-w-[200px] truncate">{lead.message || "—"}</TableCell>
                       <TableCell className="hidden md:table-cell text-sm">{lead.budget || "—"}</TableCell>
                       <TableCell>
