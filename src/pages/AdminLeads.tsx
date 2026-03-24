@@ -169,6 +169,7 @@ const AdminLeads = () => {
                 <Input name="name" placeholder="Full Name" required className="bg-secondary border-border" />
                 <Input name="email" placeholder="Email Address" type="email" required className="bg-secondary border-border" />
                 <Input name="phone" placeholder="Phone (optional)" className="bg-secondary border-border" />
+                <Input name="business_name" placeholder="Business Name / Type" className="bg-secondary border-border" />
                 <Input name="budget" placeholder="Budget Range (optional)" className="bg-secondary border-border" />
                 <Textarea name="message" placeholder="Business type, notes, or challenge…" rows={3} className="bg-secondary border-border" />
                 <Button type="submit" className="w-full" disabled={addLoading}>
