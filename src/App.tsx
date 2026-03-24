@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminLeads from "./pages/AdminLeads.tsx";
 import AdminPortfolio from "./pages/AdminPortfolio.tsx";
+import AdminSocial from "./pages/AdminSocial.tsx";
 
 const queryClient = new QueryClient();
 
