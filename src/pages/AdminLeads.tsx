@@ -201,6 +201,7 @@ const AdminLeads = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead className="hidden md:table-cell">Phone</TableHead>
+                  <TableHead className="hidden md:table-cell">Business</TableHead>
                   <TableHead className="hidden lg:table-cell">Message</TableHead>
                   <TableHead className="hidden md:table-cell">Budget</TableHead>
                   <TableHead>Status</TableHead>
