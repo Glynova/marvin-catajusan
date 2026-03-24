@@ -15,6 +15,7 @@ interface Lead {
   email: string;
   phone: string;
   message: string;
+  business_name: string;
   budget: string;
   status: string;
   submitted_at: string;
