@@ -101,6 +101,42 @@ export type Database = {
         }
         Relationships: []
       }
+      social_connections: {
+        Row: {
+          access_token: string | null
+          api_key: string | null
+          api_secret: string | null
+          connected: boolean | null
+          id: string
+          page_id: string | null
+          platform: string
+          updated_at: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          connected?: boolean | null
+          id?: string
+          page_id?: string | null
+          platform: string
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          connected?: boolean | null
+          id?: string
+          page_id?: string | null
+          platform?: string
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
