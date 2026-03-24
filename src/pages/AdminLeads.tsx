@@ -223,6 +223,7 @@ const AdminLeads = () => {
                       <TableCell className="font-medium">{lead.name}</TableCell>
                       <TableCell className="text-sm">{lead.email}</TableCell>
                       <TableCell className="hidden md:table-cell text-sm">{lead.phone || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm">{lead.business_name || "—"}</TableCell>
                       <TableCell className="hidden lg:table-cell text-sm max-w-[200px] truncate">{lead.message || "—"}</TableCell>
                       <TableCell className="hidden md:table-cell text-sm">{lead.budget || "—"}</TableCell>
                       <TableCell>
