@@ -17,6 +17,7 @@ export type Database = {
       leads: {
         Row: {
           budget: string | null
+          business_name: string | null
           email: string
           id: string
           message: string | null
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           budget?: string | null
+          business_name?: string | null
           email: string
           id?: string
           message?: string | null
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           budget?: string | null
+          business_name?: string | null
           email?: string
           id?: string
           message?: string | null
