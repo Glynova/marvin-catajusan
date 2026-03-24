@@ -1,82 +1,106 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, ExternalLink, CheckCircle2, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2 } from "lucide-react";
 
-interface PlatformConfig {
+interface SocialConnection {
   id: string;
-  name: string;
-  icon: string;
-  color: string;
-  description: string;
-  features: string[];
+  platform: string;
+  api_key: string;
+  api_secret: string;
+  access_token: string;
+  webhook_url: string;
+  page_id: string;
   connected: boolean;
-  setupUrl: string;
 }
 
-const platforms: PlatformConfig[] = [
-  {
-    id: "facebook",
-    name: "Facebook + Marketplace",
+interface PlatformMeta {
+  icon: string;
+  name: string;
+  description: string;
+  features: string[];
+  fields: { key: keyof SocialConnection; label: string; placeholder: string }[];
+}
+
+const platformMeta: Record<string, PlatformMeta> = {
+  facebook: {
     icon: "📘",
-    color: "hsl(var(--primary))",
+    name: "Facebook + Marketplace",
     description: "Auto-capture messages, marketplace inquiries, and sync leads to your dashboard.",
     features: ["Auto-capture messages & inquiries", "Sync to lead dashboard", "Trigger chatbot replies", "Marketplace lead capture"],
-    connected: false,
-    setupUrl: "https://developers.facebook.com/apps/",
+    fields: [
+      { key: "api_key", label: "App ID", placeholder: "Your Facebook App ID" },
+      { key: "api_secret", label: "App Secret", placeholder: "Your Facebook App Secret" },
+      { key: "access_token", label: "Page Access Token", placeholder: "Long-lived page access token" },
+      { key: "page_id", label: "Page ID", placeholder: "Your Facebook Page ID" },
+    ],
   },
-  {
-    id: "instagram",
-    name: "Instagram",
+  instagram: {
     icon: "📸",
-    color: "hsl(var(--accent))",
+    name: "Instagram",
     description: "Automate DMs, capture leads from conversations, and trigger comment-to-DM flows.",
     features: ["DM automation", "Comment-to-DM triggers", "Lead capture from conversations", "Story reply automation"],
-    connected: false,
-    setupUrl: "https://developers.facebook.com/apps/",
+    fields: [
+      { key: "api_key", label: "App ID", placeholder: "Instagram/Meta App ID" },
+      { key: "api_secret", label: "App Secret", placeholder: "Instagram/Meta App Secret" },
+      { key: "access_token", label: "Access Token", placeholder: "Instagram Graph API token" },
+      { key: "page_id", label: "Instagram Business Account ID", placeholder: "Your IG business account ID" },
+    ],
   },
-  {
-    id: "tiktok",
-    name: "TikTok",
+  tiktok: {
     icon: "🎵",
-    color: "hsl(var(--primary))",
+    name: "TikTok",
     description: "Capture leads from messages and comments with auto-reply capabilities.",
     features: ["Capture leads from messages/comments", "Auto-reply system", "Comment monitoring", "Lead scoring from engagement"],
-    connected: false,
-    setupUrl: "https://developers.tiktok.com/",
+    fields: [
+      { key: "api_key", label: "Client Key", placeholder: "TikTok app client key" },
+      { key: "api_secret", label: "Client Secret", placeholder: "TikTok app client secret" },
+      { key: "access_token", label: "Access Token", placeholder: "TikTok access token" },
+    ],
   },
-  {
-    id: "linkedin",
-    name: "LinkedIn",
+  linkedin: {
     icon: "💼",
-    color: "hsl(var(--primary))",
+    name: "LinkedIn",
     description: "Automate outreach, capture inbound leads, and manage professional messaging.",
     features: ["Message automation", "Lead capture from inbound messages", "Connection request automation", "InMail management"],
-    connected: false,
-    setupUrl: "https://www.linkedin.com/developers/",
+    fields: [
+      { key: "api_key", label: "Client ID", placeholder: "LinkedIn app Client ID" },
+      { key: "api_secret", label: "Client Secret", placeholder: "LinkedIn app Client Secret" },
+      { key: "access_token", label: "Access Token", placeholder: "LinkedIn OAuth access token" },
+    ],
   },
-  {
-    id: "whatsapp",
-    name: "WhatsApp",
+  whatsapp: {
     icon: "💬",
-    color: "hsl(var(--accent))",
+    name: "WhatsApp",
     description: "Real-time chat sync with lead creation and AI-powered auto-replies.",
     features: ["Real-time chat sync", "Lead creation from conversations", "AI chatbot auto-replies", "Broadcast messaging"],
-    connected: false,
-    setupUrl: "https://business.whatsapp.com/",
+    fields: [
+      { key: "api_key", label: "Phone Number ID", placeholder: "WhatsApp phone number ID" },
+      { key: "api_secret", label: "Business Account ID", placeholder: "WhatsApp Business Account ID" },
+      { key: "access_token", label: "Permanent Access Token", placeholder: "WhatsApp Cloud API token" },
+      { key: "webhook_url", label: "Webhook Verify Token", placeholder: "Your custom verify token" },
+    ],
   },
-];
+};
 
 const AdminSocial = () => {
   const [authed, setAuthed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [connections, setConnections] = useState<SocialConnection[]>([]);
+  const [editPlatform, setEditPlatform] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<SocialConnection>>({});
+  const [saving, setSaving] = useState(false);
+  const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const init = async () => {
@@ -93,18 +117,72 @@ const AdminSocial = () => {
         return;
       }
       setAuthed(true);
+      await fetchConnections();
       setLoading(false);
     };
     init();
   }, []);
+
+  const fetchConnections = async () => {
+    const { data } = await supabase.from("social_connections").select("*");
+    if (data) setConnections(data as SocialConnection[]);
+  };
+
+  const openEdit = (platform: string) => {
+    const conn = connections.find((c) => c.platform === platform);
+    setFormData(conn || {});
+    setEditPlatform(platform);
+  };
+
+  const handleSave = async () => {
+    if (!editPlatform) return;
+    setSaving(true);
+
+    const hasCredentials = !!(formData.access_token && formData.access_token.trim());
+
+    const { error } = await supabase
+      .from("social_connections")
+      .update({
+        api_key: formData.api_key || "",
+        api_secret: formData.api_secret || "",
+        access_token: formData.access_token || "",
+        webhook_url: formData.webhook_url || "",
+        page_id: formData.page_id || "",
+        connected: hasCredentials,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("platform", editPlatform);
+
+    setSaving(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to save credentials.", variant: "destructive" });
+    } else {
+      toast({ title: "Saved!", description: `${platformMeta[editPlatform]?.name} credentials updated.` });
+      setEditPlatform(null);
+      await fetchConnections();
+    }
+  };
+
+  const handleDisconnect = async (platform: string) => {
+    await supabase
+      .from("social_connections")
+      .update({ api_key: "", api_secret: "", access_token: "", webhook_url: "", page_id: "", connected: false, updated_at: new Date().toISOString() })
+      .eq("platform", platform);
+    toast({ title: "Disconnected", description: `${platformMeta[platform]?.name} credentials removed.` });
+    await fetchConnections();
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin-portal");
   };
 
+  const maskValue = (val: string) => val ? "•".repeat(Math.min(val.length, 20)) + val.slice(-4) : "";
+
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading…</div>;
   if (!authed) return null;
+
+  const getConn = (platform: string) => connections.find((c) => c.platform === platform);
 
   return (
     <div className="min-h-screen bg-background">
@@ -136,7 +214,7 @@ const AdminSocial = () => {
           <h1 className="font-heading text-2xl font-bold flex items-center gap-2">
             <Share2 className="h-6 w-6 text-primary" /> Social Platform Integrations
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">Connect your social accounts to auto-capture leads, sync messages, and deploy AI chatbots across all channels.</p>
+          <p className="text-muted-foreground text-sm mt-1">Connect your social accounts by entering API credentials below.</p>
         </div>
 
         <Tabs defaultValue="platforms" className="space-y-6">
@@ -148,66 +226,61 @@ const AdminSocial = () => {
 
           <TabsContent value="platforms" className="space-y-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {platforms.map((p) => (
-                <Card key={p.id} className="border-border bg-card hover:border-primary/30 transition-colors">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <span className="text-2xl">{p.icon}</span> {p.name}
-                      </CardTitle>
-                      <Badge variant={p.connected ? "default" : "secondary"} className="text-xs">
-                        {p.connected ? (
-                          <><CheckCircle2 className="h-3 w-3 mr-1" /> Connected</>
-                        ) : (
-                          <><AlertCircle className="h-3 w-3 mr-1" /> Not Connected</>
+              {Object.entries(platformMeta).map(([key, p]) => {
+                const conn = getConn(key);
+                const isConnected = conn?.connected || false;
+                return (
+                  <Card key={key} className={`border-border bg-card transition-colors ${isConnected ? "border-primary/30" : "hover:border-primary/20"}`}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <span className="text-2xl">{p.icon}</span> {p.name}
+                        </CardTitle>
+                        <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+                          {isConnected ? (
+                            <><CheckCircle2 className="h-3 w-3 mr-1" /> Connected</>
+                          ) : (
+                            <><AlertCircle className="h-3 w-3 mr-1" /> Not Connected</>
+                          )}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-xs">{p.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <ul className="space-y-1.5">
+                        {p.features.map((f) => (
+                          <li key={f} className="text-xs text-muted-foreground flex items-center gap-2">
+                            <div className="h-1 w-1 rounded-full bg-primary shrink-0" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={isConnected ? "outline" : "default"}
+                          size="sm"
+                          className="flex-1 gap-1 text-xs"
+                          onClick={() => openEdit(key)}
+                        >
+                          <Settings className="h-3 w-3" />
+                          {isConnected ? "Edit Credentials" : "Add Credentials"}
+                        </Button>
+                        {isConnected && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs text-destructive hover:text-destructive"
+                            onClick={() => handleDisconnect(key)}
+                          >
+                            Disconnect
+                          </Button>
                         )}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-xs">{p.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <ul className="space-y-1.5">
-                      {p.features.map((f) => (
-                        <li key={f} className="text-xs text-muted-foreground flex items-center gap-2">
-                          <div className="h-1 w-1 rounded-full bg-primary shrink-0" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-1 text-xs"
-                      onClick={() => window.open(p.setupUrl, "_blank")}
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      {p.connected ? "Manage Connection" : "Connect Platform"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Bot className="h-5 w-5 text-primary" /> Setup Guide
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-3">
-                <p>To fully integrate each platform, you'll need to:</p>
-                <ol className="list-decimal list-inside space-y-2 text-xs">
-                  <li><strong>Create a developer app</strong> on each platform (links above)</li>
-                  <li><strong>Configure webhooks</strong> to point to your GLYNOVA endpoint</li>
-                  <li><strong>Add API credentials</strong> — contact Marvin at <span className="text-primary">glynova.os@gmail.com</span></li>
-                  <li><strong>Test the connection</strong> by sending a test message</li>
-                </ol>
-                <div className="flex gap-2 mt-4">
-                  <Badge variant="outline" className="text-xs">📧 pugoymarvin14@gmail.com</Badge>
-                  <Badge variant="outline" className="text-xs">📱 +639630167938</Badge>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="inbox" className="space-y-4">
@@ -216,21 +289,15 @@ const AdminSocial = () => {
                 <CardTitle className="text-base flex items-center gap-2">
                   <MessageCircle className="h-5 w-5 text-primary" /> Unified Inbox
                 </CardTitle>
-                <CardDescription className="text-xs">All messages from connected platforms appear here. Connect a platform to get started.</CardDescription>
+                <CardDescription className="text-xs">All messages from connected platforms appear here.</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <MessageCircle className="h-12 w-12 text-muted-foreground/30 mb-4" />
                   <h3 className="font-heading text-lg font-semibold text-muted-foreground">No messages yet</h3>
                   <p className="text-xs text-muted-foreground mt-1 max-w-md">
-                    Once you connect your social platforms, all incoming messages, DMs, and inquiries will appear here in a single unified view.
+                    Once platforms are connected with valid credentials, incoming messages will appear here.
                   </p>
-                  <Button variant="outline" size="sm" className="mt-4 gap-1" onClick={() => {
-                    const tabsTrigger = document.querySelector('[data-state="inactive"][value="platforms"]') as HTMLElement;
-                    tabsTrigger?.click();
-                  }}>
-                    <Share2 className="h-3 w-3" /> Connect a Platform
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -242,70 +309,99 @@ const AdminSocial = () => {
                 <CardTitle className="text-base flex items-center gap-2">
                   <Bot className="h-5 w-5 text-primary" /> AI Chatbot Configuration
                 </CardTitle>
-                <CardDescription className="text-xs">Configure your AI chatbot to auto-reply across all connected social channels.</CardDescription>
+                <CardDescription className="text-xs">Configure your AI chatbot to auto-reply across connected channels.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Chatbot Persona</label>
                   <Textarea
-                    placeholder="You are GLYNOVA's AI assistant. You help potential clients learn about our digital marketing services and capture lead information…"
                     rows={4}
                     className="bg-secondary border-border text-sm"
                     defaultValue="You are GLYNOVA's friendly AI assistant. Help potential clients learn about digital marketing services, answer FAQs, and collect their contact details for a follow-up call with Marvin."
                   />
                 </div>
-
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Auto-Reply Trigger Words</label>
                   <Input
-                    placeholder="price, services, quote, help, marketing…"
                     defaultValue="price, services, quote, help, marketing, website, social media, ads"
                     className="bg-secondary border-border text-sm"
                   />
-                  <p className="text-xs text-muted-foreground">The AI chatbot will auto-reply when messages contain these keywords.</p>
+                  <p className="text-xs text-muted-foreground">AI chatbot auto-replies when messages contain these keywords.</p>
                 </div>
-
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Active Channels</label>
                     <div className="space-y-1.5">
-                      {platforms.map((p) => (
-                        <label key={p.id} className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <input type="checkbox" disabled={!p.connected} className="rounded border-border" />
-                          <span>{p.icon} {p.name}</span>
-                          {!p.connected && <Badge variant="secondary" className="text-[10px] px-1">Not connected</Badge>}
-                        </label>
-                      ))}
+                      {Object.entries(platformMeta).map(([key, p]) => {
+                        const isConnected = getConn(key)?.connected || false;
+                        return (
+                          <label key={key} className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <input type="checkbox" disabled={!isConnected} defaultChecked={isConnected} className="rounded border-border" />
+                            <span>{p.icon} {p.name}</span>
+                            {!isConnected && <Badge variant="secondary" className="text-[10px] px-1">Not connected</Badge>}
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Response Settings</label>
                     <div className="space-y-1.5 text-xs text-muted-foreground">
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" defaultChecked className="rounded border-border" />
-                        Auto-capture as lead
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" defaultChecked className="rounded border-border" />
-                        Send follow-up booking link
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" defaultChecked className="rounded border-border" />
-                        Notify admin on new conversation
-                      </label>
+                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Auto-capture as lead</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Send follow-up booking link</label>
+                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Notify admin on new conversation</label>
                     </div>
                   </div>
                 </div>
-
-                <Button className="gap-1" disabled>
+                <Button className="gap-1">
                   <Send className="h-4 w-4" /> Save Configuration
-                  <Badge variant="secondary" className="ml-2 text-[10px]">Connect a platform first</Badge>
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Credentials Dialog */}
+      <Dialog open={!!editPlatform} onOpenChange={(open) => !open && setEditPlatform(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-2xl">{editPlatform && platformMeta[editPlatform]?.icon}</span>
+              {editPlatform && platformMeta[editPlatform]?.name} Credentials
+            </DialogTitle>
+          </DialogHeader>
+          {editPlatform && platformMeta[editPlatform] && (
+            <div className="space-y-3 mt-2">
+              {platformMeta[editPlatform].fields.map((field) => (
+                <div key={field.key} className="space-y-1">
+                  <label className="text-xs font-medium text-foreground">{field.label}</label>
+                  <div className="relative">
+                    <Input
+                      type={showSecrets[field.key] ? "text" : "password"}
+                      placeholder={field.placeholder}
+                      value={(formData as any)[field.key] || ""}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                      className="bg-secondary border-border text-sm pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSecrets((prev) => ({ ...prev, [field.key]: !prev[field.key] }))}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showSecrets[field.key] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <Button onClick={handleSave} disabled={saving} className="w-full gap-1 mt-4">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {saving ? "Saving…" : "Save Credentials"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
