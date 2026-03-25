@@ -437,6 +437,45 @@ const AdminSocial = () => {
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {saving ? "Saving…" : "Save Credentials"}
               </Button>
+
+              {/* Test Connection — Facebook only for now */}
+              {editPlatform === "facebook" && getConn("facebook")?.connected && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleTestConnection("facebook")}
+                  disabled={testing}
+                  className="w-full gap-1"
+                >
+                  {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wifi className="h-4 w-4" />}
+                  {testing ? "Testing…" : "Test Connection"}
+                </Button>
+              )}
+
+              {/* Webhook info — Facebook */}
+              {editPlatform === "facebook" && (
+                <div className="mt-4 p-3 rounded-md bg-secondary/50 border border-border space-y-2">
+                  <p className="text-xs font-medium text-foreground">Facebook Developer Settings</p>
+                  <div className="space-y-1">
+                    <p className="text-[11px] text-muted-foreground">Callback URL:</p>
+                    <div className="flex items-center gap-1">
+                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1 truncate">{WEBHOOK_URL}</code>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(WEBHOOK_URL)}>
+                        {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] text-muted-foreground">Verify Token:</p>
+                    <div className="flex items-center gap-1">
+                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1">{VERIFY_TOKEN}</code>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(VERIFY_TOKEN)}>
+                        {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Subscribe to: <strong>messages</strong>, <strong>messaging_postbacks</strong></p>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
