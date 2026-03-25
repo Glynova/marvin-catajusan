@@ -101,6 +101,11 @@ const AdminSocial = () => {
   const [testing, setTesting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
+  const [chatbotPersona, setChatbotPersona] = useState("You are GLYNOVA's friendly AI assistant. Help potential clients learn about digital marketing services, answer FAQs, and collect their contact details for a follow-up call with Marvin.");
+  const [triggerWords, setTriggerWords] = useState("price, services, quote, help, marketing, website, social media, ads");
+  const [activeChannels, setActiveChannels] = useState<Record<string, boolean>>({});
+  const [chatbotSettings, setChatbotSettings] = useState({ autoCaptureLead: true, sendBookingLink: true, notifyAdmin: true });
+  const [savingChatbot, setSavingChatbot] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
