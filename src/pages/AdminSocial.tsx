@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2 } from "lucide-react";
+import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2, Wifi, Copy, Check } from "lucide-react";
 
 interface SocialConnection {
   id: string;
