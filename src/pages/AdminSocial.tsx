@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2 } from "lucide-react";
+import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2, Wifi, Copy, Check } from "lucide-react";
 
 interface SocialConnection {
   id: string;
@@ -98,9 +98,48 @@ const AdminSocial = () => {
   const [editPlatform, setEditPlatform] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<SocialConnection>>({});
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const WEBHOOK_URL = `https://euwolzjbeczplmskxnpr.supabase.co/functions/v1/facebook-webhook`;
+  const VERIFY_TOKEN = "glynova_fb_verify_2024";
+
+  const handleTestConnection = async (platform: string) => {
+    if (platform !== "facebook") {
+      toast({ title: "Coming soon", description: `${platformMeta[platform]?.name} test not yet available.` });
+      return;
+    }
+    setTesting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { toast({ title: "Error", description: "Not authenticated", variant: "destructive" }); return; }
+
+      const res = await supabase.functions.invoke("facebook-test", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (res.error) {
+        toast({ title: "Connection Failed", description: res.error.message || "Could not connect", variant: "destructive" });
+      } else if (res.data?.success) {
+        toast({ title: "✅ Connected!", description: `Page: ${res.data.page_name} (${res.data.page_id})` });
+      } else {
+        toast({ title: "Connection Failed", description: res.data?.error || "Invalid credentials", variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Error", description: "Test failed unexpectedly", variant: "destructive" });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -398,6 +437,45 @@ const AdminSocial = () => {
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {saving ? "Saving…" : "Save Credentials"}
               </Button>
+
+              {/* Test Connection — Facebook only for now */}
+              {editPlatform === "facebook" && getConn("facebook")?.connected && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleTestConnection("facebook")}
+                  disabled={testing}
+                  className="w-full gap-1"
+                >
+                  {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wifi className="h-4 w-4" />}
+                  {testing ? "Testing…" : "Test Connection"}
+                </Button>
+              )}
+
+              {/* Webhook info — Facebook */}
+              {editPlatform === "facebook" && (
+                <div className="mt-4 p-3 rounded-md bg-secondary/50 border border-border space-y-2">
+                  <p className="text-xs font-medium text-foreground">Facebook Developer Settings</p>
+                  <div className="space-y-1">
+                    <p className="text-[11px] text-muted-foreground">Callback URL:</p>
+                    <div className="flex items-center gap-1">
+                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1 truncate">{WEBHOOK_URL}</code>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(WEBHOOK_URL)}>
+                        {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] text-muted-foreground">Verify Token:</p>
+                    <div className="flex items-center gap-1">
+                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1">{VERIFY_TOKEN}</code>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(VERIFY_TOKEN)}>
+                        {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Subscribe to: <strong>messages</strong>, <strong>messaging_postbacks</strong></p>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
