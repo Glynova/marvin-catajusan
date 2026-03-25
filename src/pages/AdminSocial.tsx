@@ -162,6 +162,7 @@ const AdminSocial = () => {
       }
       setAuthed(true);
       await fetchConnections();
+      await fetchChatbotConfig();
       setLoading(false);
     };
     init();
@@ -170,6 +171,46 @@ const AdminSocial = () => {
   const fetchConnections = async () => {
     const { data } = await supabase.from("social_connections").select("*");
     if (data) setConnections(data as SocialConnection[]);
+  };
+
+  const fetchChatbotConfig = async () => {
+    const { data } = await supabase.from("chatbot_config").select("*").limit(1).maybeSingle();
+    if (data) {
+      setChatbotPersona(data.persona || "");
+      const tw = data.trigger_words as string[] | null;
+      setTriggerWords(tw ? tw.join(", ") : "");
+      setActiveChannels((data.active_channels as Record<string, boolean>) || {});
+      setChatbotSettings({ autoCaptureLead: true, sendBookingLink: true, notifyAdmin: true, ...((data.settings as Record<string, boolean>) || {}) });
+    }
+  };
+
+  const handleSaveChatbot = async () => {
+    setSavingChatbot(true);
+    const triggerWordsArray = triggerWords.split(",").map(w => w.trim()).filter(Boolean);
+    const payload = {
+      persona: chatbotPersona,
+      trigger_words: triggerWordsArray,
+      active_channels: activeChannels,
+      settings: chatbotSettings,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Check if config exists
+    const { data: existing } = await supabase.from("chatbot_config").select("id").limit(1).maybeSingle();
+
+    let error;
+    if (existing) {
+      ({ error } = await supabase.from("chatbot_config").update(payload).eq("id", existing.id));
+    } else {
+      ({ error } = await supabase.from("chatbot_config").insert(payload));
+    }
+
+    setSavingChatbot(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to save chatbot config.", variant: "destructive" });
+    } else {
+      toast({ title: "Saved!", description: "AI Chatbot configuration saved successfully." });
+    }
   };
 
   const openEdit = (platform: string) => {
