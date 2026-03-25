@@ -98,9 +98,48 @@ const AdminSocial = () => {
   const [editPlatform, setEditPlatform] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<SocialConnection>>({});
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const WEBHOOK_URL = `https://euwolzjbeczplmskxnpr.supabase.co/functions/v1/facebook-webhook`;
+  const VERIFY_TOKEN = "glynova_fb_verify_2024";
+
+  const handleTestConnection = async (platform: string) => {
+    if (platform !== "facebook") {
+      toast({ title: "Coming soon", description: `${platformMeta[platform]?.name} test not yet available.` });
+      return;
+    }
+    setTesting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { toast({ title: "Error", description: "Not authenticated", variant: "destructive" }); return; }
+
+      const res = await supabase.functions.invoke("facebook-test", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (res.error) {
+        toast({ title: "Connection Failed", description: res.error.message || "Could not connect", variant: "destructive" });
+      } else if (res.data?.success) {
+        toast({ title: "✅ Connected!", description: `Page: ${res.data.page_name} (${res.data.page_id})` });
+      } else {
+        toast({ title: "Connection Failed", description: res.data?.error || "Invalid credentials", variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Error", description: "Test failed unexpectedly", variant: "destructive" });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     const init = async () => {
