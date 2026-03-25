@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      chatbot_config: {
+        Row: {
+          active_channels: Json
+          created_at: string
+          id: string
+          persona: string
+          settings: Json
+          trigger_words: Json
+          updated_at: string
+        }
+        Insert: {
+          active_channels?: Json
+          created_at?: string
+          id?: string
+          persona?: string
+          settings?: Json
+          trigger_words?: Json
+          updated_at?: string
+        }
+        Update: {
+          active_channels?: Json
+          created_at?: string
+          id?: string
+          persona?: string
+          settings?: Json
+          trigger_words?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           budget: string | null
