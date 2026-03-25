@@ -101,6 +101,11 @@ const AdminSocial = () => {
   const [testing, setTesting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
+  const [chatbotPersona, setChatbotPersona] = useState("You are GLYNOVA's friendly AI assistant. Help potential clients learn about digital marketing services, answer FAQs, and collect their contact details for a follow-up call with Marvin.");
+  const [triggerWords, setTriggerWords] = useState("price, services, quote, help, marketing, website, social media, ads");
+  const [activeChannels, setActiveChannels] = useState<Record<string, boolean>>({});
+  const [chatbotSettings, setChatbotSettings] = useState({ autoCaptureLead: true, sendBookingLink: true, notifyAdmin: true });
+  const [savingChatbot, setSavingChatbot] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -157,6 +162,7 @@ const AdminSocial = () => {
       }
       setAuthed(true);
       await fetchConnections();
+      await fetchChatbotConfig();
       setLoading(false);
     };
     init();
@@ -165,6 +171,46 @@ const AdminSocial = () => {
   const fetchConnections = async () => {
     const { data } = await supabase.from("social_connections").select("*");
     if (data) setConnections(data as SocialConnection[]);
+  };
+
+  const fetchChatbotConfig = async () => {
+    const { data } = await supabase.from("chatbot_config").select("*").limit(1).maybeSingle();
+    if (data) {
+      setChatbotPersona(data.persona || "");
+      const tw = data.trigger_words as string[] | null;
+      setTriggerWords(tw ? tw.join(", ") : "");
+      setActiveChannels((data.active_channels as Record<string, boolean>) || {});
+      setChatbotSettings({ autoCaptureLead: true, sendBookingLink: true, notifyAdmin: true, ...((data.settings as Record<string, boolean>) || {}) });
+    }
+  };
+
+  const handleSaveChatbot = async () => {
+    setSavingChatbot(true);
+    const triggerWordsArray = triggerWords.split(",").map(w => w.trim()).filter(Boolean);
+    const payload = {
+      persona: chatbotPersona,
+      trigger_words: triggerWordsArray,
+      active_channels: activeChannels,
+      settings: chatbotSettings,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Check if config exists
+    const { data: existing } = await supabase.from("chatbot_config").select("id").limit(1).maybeSingle();
+
+    let error;
+    if (existing) {
+      ({ error } = await supabase.from("chatbot_config").update(payload).eq("id", existing.id));
+    } else {
+      ({ error } = await supabase.from("chatbot_config").insert(payload));
+    }
+
+    setSavingChatbot(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to save chatbot config.", variant: "destructive" });
+    } else {
+      toast({ title: "Saved!", description: "AI Chatbot configuration saved successfully." });
+    }
   };
 
   const openEdit = (platform: string) => {
@@ -356,13 +402,15 @@ const AdminSocial = () => {
                   <Textarea
                     rows={4}
                     className="bg-secondary border-border text-sm"
-                    defaultValue="You are GLYNOVA's friendly AI assistant. Help potential clients learn about digital marketing services, answer FAQs, and collect their contact details for a follow-up call with Marvin."
+                    value={chatbotPersona}
+                    onChange={(e) => setChatbotPersona(e.target.value)}
                   />
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Auto-Reply Trigger Words</label>
                   <Input
-                    defaultValue="price, services, quote, help, marketing, website, social media, ads"
+                    value={triggerWords}
+                    onChange={(e) => setTriggerWords(e.target.value)}
                     className="bg-secondary border-border text-sm"
                   />
                   <p className="text-xs text-muted-foreground">AI chatbot auto-replies when messages contain these keywords.</p>
@@ -375,7 +423,13 @@ const AdminSocial = () => {
                         const isConnected = getConn(key)?.connected || false;
                         return (
                           <label key={key} className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <input type="checkbox" disabled={!isConnected} defaultChecked={isConnected} className="rounded border-border" />
+                            <input
+                              type="checkbox"
+                              disabled={!isConnected}
+                              checked={activeChannels[key] ?? isConnected}
+                              onChange={(e) => setActiveChannels(prev => ({ ...prev, [key]: e.target.checked }))}
+                              className="rounded border-border"
+                            />
                             <span>{p.icon} {p.name}</span>
                             {!isConnected && <Badge variant="secondary" className="text-[10px] px-1">Not connected</Badge>}
                           </label>
@@ -386,14 +440,21 @@ const AdminSocial = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Response Settings</label>
                     <div className="space-y-1.5 text-xs text-muted-foreground">
-                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Auto-capture as lead</label>
-                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Send follow-up booking link</label>
-                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Notify admin on new conversation</label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={chatbotSettings.autoCaptureLead} onChange={(e) => setChatbotSettings(s => ({ ...s, autoCaptureLead: e.target.checked }))} className="rounded border-border" /> Auto-capture as lead
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={chatbotSettings.sendBookingLink} onChange={(e) => setChatbotSettings(s => ({ ...s, sendBookingLink: e.target.checked }))} className="rounded border-border" /> Send follow-up booking link
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={chatbotSettings.notifyAdmin} onChange={(e) => setChatbotSettings(s => ({ ...s, notifyAdmin: e.target.checked }))} className="rounded border-border" /> Notify admin on new conversation
+                      </label>
                     </div>
                   </div>
                 </div>
-                <Button className="gap-1">
-                  <Send className="h-4 w-4" /> Save Configuration
+                <Button className="gap-1" onClick={handleSaveChatbot} disabled={savingChatbot}>
+                  {savingChatbot ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {savingChatbot ? "Saving…" : "Save Configuration"}
                 </Button>
               </CardContent>
             </Card>
