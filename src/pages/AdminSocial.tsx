@@ -402,13 +402,15 @@ const AdminSocial = () => {
                   <Textarea
                     rows={4}
                     className="bg-secondary border-border text-sm"
-                    defaultValue="You are GLYNOVA's friendly AI assistant. Help potential clients learn about digital marketing services, answer FAQs, and collect their contact details for a follow-up call with Marvin."
+                    value={chatbotPersona}
+                    onChange={(e) => setChatbotPersona(e.target.value)}
                   />
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Auto-Reply Trigger Words</label>
                   <Input
-                    defaultValue="price, services, quote, help, marketing, website, social media, ads"
+                    value={triggerWords}
+                    onChange={(e) => setTriggerWords(e.target.value)}
                     className="bg-secondary border-border text-sm"
                   />
                   <p className="text-xs text-muted-foreground">AI chatbot auto-replies when messages contain these keywords.</p>
@@ -421,7 +423,13 @@ const AdminSocial = () => {
                         const isConnected = getConn(key)?.connected || false;
                         return (
                           <label key={key} className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <input type="checkbox" disabled={!isConnected} defaultChecked={isConnected} className="rounded border-border" />
+                            <input
+                              type="checkbox"
+                              disabled={!isConnected}
+                              checked={activeChannels[key] ?? isConnected}
+                              onChange={(e) => setActiveChannels(prev => ({ ...prev, [key]: e.target.checked }))}
+                              className="rounded border-border"
+                            />
                             <span>{p.icon} {p.name}</span>
                             {!isConnected && <Badge variant="secondary" className="text-[10px] px-1">Not connected</Badge>}
                           </label>
@@ -432,14 +440,21 @@ const AdminSocial = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Response Settings</label>
                     <div className="space-y-1.5 text-xs text-muted-foreground">
-                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Auto-capture as lead</label>
-                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Send follow-up booking link</label>
-                      <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded border-border" /> Notify admin on new conversation</label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={chatbotSettings.autoCaptureLead} onChange={(e) => setChatbotSettings(s => ({ ...s, autoCaptureLead: e.target.checked }))} className="rounded border-border" /> Auto-capture as lead
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={chatbotSettings.sendBookingLink} onChange={(e) => setChatbotSettings(s => ({ ...s, sendBookingLink: e.target.checked }))} className="rounded border-border" /> Send follow-up booking link
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={chatbotSettings.notifyAdmin} onChange={(e) => setChatbotSettings(s => ({ ...s, notifyAdmin: e.target.checked }))} className="rounded border-border" /> Notify admin on new conversation
+                      </label>
                     </div>
                   </div>
                 </div>
-                <Button className="gap-1">
-                  <Send className="h-4 w-4" /> Save Configuration
+                <Button className="gap-1" onClick={handleSaveChatbot} disabled={savingChatbot}>
+                  {savingChatbot ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {savingChatbot ? "Saving…" : "Save Configuration"}
                 </Button>
               </CardContent>
             </Card>
