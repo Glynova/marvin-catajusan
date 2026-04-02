@@ -165,6 +165,7 @@ const AdminSocial = () => {
       setAuthed(true);
       await fetchConnections();
       await fetchChatbotConfig();
+      await fetchUnreadCount();
       setLoading(false);
     };
     init();
