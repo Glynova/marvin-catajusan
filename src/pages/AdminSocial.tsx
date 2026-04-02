@@ -94,6 +94,7 @@ const platformMeta: Record<string, PlatformMeta> = {
 
 const AdminSocial = () => {
   const [authed, setAuthed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [connections, setConnections] = useState<SocialConnection[]>([]);
   const [editPlatform, setEditPlatform] = useState<string | null>(null);
