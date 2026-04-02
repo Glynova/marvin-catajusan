@@ -370,23 +370,7 @@ const AdminSocial = () => {
           </TabsContent>
 
           <TabsContent value="inbox" className="space-y-4">
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-primary" /> Unified Inbox
-                </CardTitle>
-                <CardDescription className="text-xs">All messages from connected platforms appear here.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <MessageCircle className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <h3 className="font-heading text-lg font-semibold text-muted-foreground">No messages yet</h3>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-md">
-                    Once platforms are connected with valid credentials, incoming messages will appear here.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <UnifiedInbox />
           </TabsContent>
 
           <TabsContent value="chatbot" className="space-y-4">
