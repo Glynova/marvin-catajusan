@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2, Wifi, Copy, Check } from "lucide-react";
+import UnifiedInbox from "@/components/UnifiedInbox";
 
 interface SocialConnection {
   id: string;
