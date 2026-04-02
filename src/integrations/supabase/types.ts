@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message: string | null
+          platform: string
+          sender_avatar: string | null
+          sender_id: string
+          sender_name: string
+          tags: Json
+          unread: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          platform: string
+          sender_avatar?: string | null
+          sender_id: string
+          sender_name?: string
+          tags?: Json
+          unread?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          platform?: string
+          sender_avatar?: string | null
+          sender_id?: string
+          sender_name?: string
+          tags?: Json
+          unread?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           budget: string | null
@@ -79,6 +118,41 @@ export type Database = {
           submitted_at?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          message_text: string
+          platform: string
+          sender: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message_text: string
+          platform?: string
+          sender?: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message_text?: string
+          platform?: string
+          sender?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       portfolio_items: {
         Row: {
