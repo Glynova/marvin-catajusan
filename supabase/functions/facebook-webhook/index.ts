@@ -10,19 +10,17 @@ const corsHeaders = {
 const VERIFY_TOKEN = "glynova_fb_verify_2024";
 
 serve(async (req) => {
-  // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   const url = new URL(req.url);
 
-  // ── GET: Facebook webhook verification ──
+  // GET: Facebook webhook verification
   if (req.method === "GET") {
     const mode = url.searchParams.get("hub.mode");
     const token = url.searchParams.get("hub.verify_token");
     const challenge = url.searchParams.get("hub.challenge");
-
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
       console.log("Facebook webhook verified");
       return new Response(challenge, { status: 200, headers: corsHeaders });
@@ -30,11 +28,10 @@ serve(async (req) => {
     return new Response("Forbidden", { status: 403, headers: corsHeaders });
   }
 
-  // ── POST: Receive messages from Messenger ──
+  // POST: Receive messages from Messenger
   if (req.method === "POST") {
     try {
       const body = await req.json();
-
       if (body.object !== "page") {
         return new Response("Not Found", { status: 404, headers: corsHeaders });
       }
@@ -49,13 +46,50 @@ serve(async (req) => {
 
           const senderId = event.sender.id;
           const messageText = event.message.text;
-          const timestamp = event.timestamp
-            ? new Date(event.timestamp).toISOString()
-            : new Date().toISOString();
 
           console.log(`Message from ${senderId}: ${messageText}`);
 
-          // Save as lead
+          // Upsert conversation
+          const { data: existingConvo } = await supabase
+            .from("conversations")
+            .select("id")
+            .eq("sender_id", senderId)
+            .eq("platform", "facebook")
+            .maybeSingle();
+
+          let convoId: string;
+
+          if (existingConvo) {
+            convoId = existingConvo.id;
+            await supabase.from("conversations").update({
+              last_message: messageText,
+              unread: true,
+              updated_at: new Date().toISOString(),
+            }).eq("id", convoId);
+          } else {
+            const { data: newConvo } = await supabase
+              .from("conversations")
+              .insert({
+                sender_id: senderId,
+                sender_name: `FB User ${senderId}`,
+                platform: "facebook",
+                last_message: messageText,
+                unread: true,
+              })
+              .select("id")
+              .single();
+            convoId = newConvo!.id;
+          }
+
+          // Insert message
+          await supabase.from("messages").insert({
+            conversation_id: convoId,
+            sender: "client",
+            message_text: messageText,
+            platform: "facebook",
+          });
+
+          // Also save as lead
           await supabase.from("leads").insert({
             name: `FB User ${senderId}`,
             email: `${senderId}@facebook.messenger`,
@@ -64,7 +98,7 @@ serve(async (req) => {
             status: "New",
           });
 
-          // Get page access token from social_connections
+          // Get page access token
           const { data: fbConn } = await supabase
             .from("social_connections")
             .select("access_token, page_id")
@@ -72,13 +106,21 @@ serve(async (req) => {
             .single();
 
           if (fbConn?.access_token) {
-            // Generate AI reply
-            let replyText =
-              "Thanks for your message! We'll get back to you shortly. 🙌";
+            let replyText = "Thanks for your message! We'll get back to you shortly. 🙌";
 
             try {
               const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
               if (LOVABLE_API_KEY) {
+                // Fetch chatbot persona
+                let systemPrompt = "You are GLYNOVA's friendly AI assistant on Facebook Messenger. Help potential clients learn about digital marketing services. Keep replies short (2-3 sentences), warm, and professional. Always encourage booking a consultation.";
+                
+                const { data: botConfig } = await supabase
+                  .from("chatbot_config")
+                  .select("persona")
+                  .limit(1)
+                  .maybeSingle();
+                if (botConfig?.persona) systemPrompt = botConfig.persona;
+
                 const aiRes = await fetch(
                   "https://ai.gateway.lovable.dev/v1/chat/completions",
                   {
@@ -90,11 +132,7 @@ serve(async (req) => {
                     body: JSON.stringify({
                       model: "google/gemini-2.5-flash",
                       messages: [
-                        {
-                          role: "system",
-                          content:
-                            "You are GLYNOVA's friendly AI assistant on Facebook Messenger. Help potential clients learn about digital marketing services (web design, social media management, branding, ads). Keep replies short (2-3 sentences), warm, and professional. Always encourage booking a consultation. Owner: Marvin Catajusan.",
-                        },
+                        { role: "system", content: systemPrompt },
                         { role: "user", content: messageText },
                       ],
                     }),
@@ -103,13 +141,25 @@ serve(async (req) => {
 
                 if (aiRes.ok) {
                   const aiData = await aiRes.json();
-                  replyText =
-                    aiData.choices?.[0]?.message?.content || replyText;
+                  replyText = aiData.choices?.[0]?.message?.content || replyText;
                 }
               }
             } catch (aiErr) {
               console.error("AI reply error:", aiErr);
             }
+
+            // Store bot reply in messages
+            await supabase.from("messages").insert({
+              conversation_id: convoId,
+              sender: "admin",
+              message_text: replyText,
+              platform: "facebook",
+            });
+
+            await supabase.from("conversations").update({
+              last_message: replyText,
+              updated_at: new Date().toISOString(),
+            }).eq("id", convoId);
 
             // Send reply via Facebook Graph API
             try {
@@ -124,7 +174,6 @@ serve(async (req) => {
                   }),
                 }
               );
-
               if (!fbRes.ok) {
                 const errData = await fbRes.json();
                 console.error("FB send error:", errData);
@@ -136,10 +185,7 @@ serve(async (req) => {
         }
       }
 
-      return new Response("EVENT_RECEIVED", {
-        status: 200,
-        headers: corsHeaders,
-      });
+      return new Response("EVENT_RECEIVED", { status: 200, headers: corsHeaders });
     } catch (err) {
       console.error("Webhook error:", err);
       return new Response(JSON.stringify({ error: "Internal error" }), {
@@ -149,8 +195,5 @@ serve(async (req) => {
     }
   }
 
-  return new Response("Method not allowed", {
-    status: 405,
-    headers: corsHeaders,
-  });
+  return new Response("Method not allowed", { status: 405, headers: corsHeaders });
 });
