@@ -20,6 +20,7 @@ interface Conversation {
   last_message: string;
   unread: boolean;
   tags: string[];
+  created_at: string;
   updated_at: string;
 }
 
