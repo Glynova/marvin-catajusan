@@ -94,6 +94,7 @@ const platformMeta: Record<string, PlatformMeta> = {
 
 const AdminSocial = () => {
   const [authed, setAuthed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [connections, setConnections] = useState<SocialConnection[]>([]);
   const [editPlatform, setEditPlatform] = useState<string | null>(null);
@@ -164,10 +165,19 @@ const AdminSocial = () => {
       setAuthed(true);
       await fetchConnections();
       await fetchChatbotConfig();
+      await fetchUnreadCount();
       setLoading(false);
     };
     init();
   }, []);
+
+  const fetchUnreadCount = async () => {
+    const { count } = await supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
+      .eq("unread", true);
+    setUnreadCount(count || 0);
+  };
 
   const fetchConnections = async () => {
     const { data } = await supabase.from("social_connections").select("*");
@@ -313,7 +323,14 @@ const AdminSocial = () => {
         <Tabs defaultValue="platforms" className="space-y-6">
           <TabsList>
             <TabsTrigger value="platforms">Platforms</TabsTrigger>
-            <TabsTrigger value="inbox">Unified Inbox</TabsTrigger>
+            <TabsTrigger value="inbox" className="relative">
+              Unified Inbox
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="chatbot">AI Chatbot</TabsTrigger>
           </TabsList>
 
