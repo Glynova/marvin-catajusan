@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2, Wifi, Copy, Check } from "lucide-react";
+import UnifiedInbox from "@/components/UnifiedInbox";
 
 interface SocialConnection {
   id: string;
@@ -225,18 +226,25 @@ const AdminSocial = () => {
 
     const hasCredentials = !!(formData.access_token && formData.access_token.trim());
 
-    const { error } = await supabase
-      .from("social_connections")
-      .update({
-        api_key: formData.api_key || "",
-        api_secret: formData.api_secret || "",
-        access_token: formData.access_token || "",
-        webhook_url: formData.webhook_url || "",
-        page_id: formData.page_id || "",
-        connected: hasCredentials,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("platform", editPlatform);
+    const payload = {
+      platform: editPlatform,
+      api_key: formData.api_key || "",
+      api_secret: formData.api_secret || "",
+      access_token: formData.access_token || "",
+      webhook_url: formData.webhook_url || "",
+      page_id: formData.page_id || "",
+      connected: hasCredentials,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Check if row exists for this platform
+    const existing = connections.find(c => c.platform === editPlatform);
+    let error;
+    if (existing?.id) {
+      ({ error } = await supabase.from("social_connections").update(payload).eq("id", existing.id));
+    } else {
+      ({ error } = await supabase.from("social_connections").insert(payload));
+    }
 
     setSaving(false);
     if (error) {
@@ -369,23 +377,7 @@ const AdminSocial = () => {
           </TabsContent>
 
           <TabsContent value="inbox" className="space-y-4">
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-primary" /> Unified Inbox
-                </CardTitle>
-                <CardDescription className="text-xs">All messages from connected platforms appear here.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <MessageCircle className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <h3 className="font-heading text-lg font-semibold text-muted-foreground">No messages yet</h3>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-md">
-                    Once platforms are connected with valid credentials, incoming messages will appear here.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <UnifiedInbox />
           </TabsContent>
 
           <TabsContent value="chatbot" className="space-y-4">
