@@ -226,18 +226,25 @@ const AdminSocial = () => {
 
     const hasCredentials = !!(formData.access_token && formData.access_token.trim());
 
-    const { error } = await supabase
-      .from("social_connections")
-      .update({
-        api_key: formData.api_key || "",
-        api_secret: formData.api_secret || "",
-        access_token: formData.access_token || "",
-        webhook_url: formData.webhook_url || "",
-        page_id: formData.page_id || "",
-        connected: hasCredentials,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("platform", editPlatform);
+    const payload = {
+      platform: editPlatform,
+      api_key: formData.api_key || "",
+      api_secret: formData.api_secret || "",
+      access_token: formData.access_token || "",
+      webhook_url: formData.webhook_url || "",
+      page_id: formData.page_id || "",
+      connected: hasCredentials,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Check if row exists for this platform
+    const existing = connections.find(c => c.platform === editPlatform);
+    let error;
+    if (existing?.id) {
+      ({ error } = await supabase.from("social_connections").update(payload).eq("id", existing.id));
+    } else {
+      ({ error } = await supabase.from("social_connections").insert(payload));
+    }
 
     setSaving(false);
     if (error) {
