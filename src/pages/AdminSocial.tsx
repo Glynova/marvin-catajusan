@@ -171,6 +171,14 @@ const AdminSocial = () => {
     init();
   }, []);
 
+  const fetchUnreadCount = async () => {
+    const { count } = await supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
+      .eq("unread", true);
+    setUnreadCount(count || 0);
+  };
+
   const fetchConnections = async () => {
     const { data } = await supabase.from("social_connections").select("*");
     if (data) setConnections(data as SocialConnection[]);
