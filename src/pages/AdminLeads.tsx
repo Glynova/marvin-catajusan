@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus, Share2 } from "lucide-react";
+import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus, Share2, BarChart3 } from "lucide-react";
 interface Lead {
   id: string;
   name: string;
