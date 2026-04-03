@@ -111,8 +111,12 @@ const AdminSocial = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const WEBHOOK_URL = `https://euwolzjbeczplmskxnpr.supabase.co/functions/v1/facebook-webhook`;
+  const WEBHOOK_BASE = `https://euwolzjbeczplmskxnpr.supabase.co/functions/v1`;
+  const WEBHOOK_URL = `${WEBHOOK_BASE}/facebook-webhook`;
+  const WA_WEBHOOK_URL = `${WEBHOOK_BASE}/whatsapp-webhook`;
+  const IG_WEBHOOK_URL = `${WEBHOOK_BASE}/instagram-webhook`;
   const VERIFY_TOKEN = "glynova_fb_verify_2024";
+  const IG_VERIFY_TOKEN = "glynova_ig_verify_2024";
 
   const handleTestConnection = async (platform: string) => {
     if (platform !== "facebook") {
@@ -521,15 +525,19 @@ const AdminSocial = () => {
                 </Button>
               )}
 
-              {/* Webhook info — Facebook */}
-              {editPlatform === "facebook" && (
+              {/* Webhook info */}
+              {(editPlatform === "facebook" || editPlatform === "whatsapp" || editPlatform === "instagram") && (
                 <div className="mt-4 p-3 rounded-md bg-secondary/50 border border-border space-y-2">
-                  <p className="text-xs font-medium text-foreground">Facebook Developer Settings</p>
+                  <p className="text-xs font-medium text-foreground">
+                    {editPlatform === "facebook" ? "Facebook" : editPlatform === "whatsapp" ? "WhatsApp" : "Instagram"} Developer Settings
+                  </p>
                   <div className="space-y-1">
                     <p className="text-[11px] text-muted-foreground">Callback URL:</p>
                     <div className="flex items-center gap-1">
-                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1 truncate">{WEBHOOK_URL}</code>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(WEBHOOK_URL)}>
+                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1 truncate">
+                        {editPlatform === "facebook" ? WEBHOOK_URL : editPlatform === "whatsapp" ? WA_WEBHOOK_URL : IG_WEBHOOK_URL}
+                      </code>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(editPlatform === "facebook" ? WEBHOOK_URL : editPlatform === "whatsapp" ? WA_WEBHOOK_URL : IG_WEBHOOK_URL)}>
                         {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                       </Button>
                     </div>
@@ -537,13 +545,15 @@ const AdminSocial = () => {
                   <div className="space-y-1">
                     <p className="text-[11px] text-muted-foreground">Verify Token:</p>
                     <div className="flex items-center gap-1">
-                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1">{VERIFY_TOKEN}</code>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(VERIFY_TOKEN)}>
+                      <code className="text-[11px] bg-background px-2 py-1 rounded border border-border flex-1">
+                        {editPlatform === "facebook" ? VERIFY_TOKEN : editPlatform === "instagram" ? IG_VERIFY_TOKEN : "Your custom verify token"}
+                      </code>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => copyToClipboard(editPlatform === "facebook" ? VERIFY_TOKEN : editPlatform === "instagram" ? IG_VERIFY_TOKEN : "")}>
                         {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                       </Button>
                     </div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Subscribe to: <strong>messages</strong>, <strong>messaging_postbacks</strong></p>
+                  <p className="text-[10px] text-muted-foreground">Subscribe to: <strong>messages</strong>{editPlatform === "facebook" && <>, <strong>messaging_postbacks</strong></>}</p>
                 </div>
               )}
             </div>
