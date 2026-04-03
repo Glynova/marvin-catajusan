@@ -145,6 +145,9 @@ const AdminLeads = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")} className="gap-1">
               <Share2 className="h-4 w-4" /> Social
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/ads-intelligence")} className="gap-1">
+              <BarChart3 className="h-4 w-4" /> Ads AI
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1">
               <LogOut className="h-4 w-4" /> Logout
             </Button>
