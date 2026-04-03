@@ -9,6 +9,7 @@ import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminLeads from "./pages/AdminLeads.tsx";
 import AdminPortfolio from "./pages/AdminPortfolio.tsx";
 import AdminSocial from "./pages/AdminSocial.tsx";
+import AdminAdsIntelligence from "./pages/AdminAdsIntelligence.tsx";
 
 const queryClient = new QueryClient();
 
