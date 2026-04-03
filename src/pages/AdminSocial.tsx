@@ -111,8 +111,12 @@ const AdminSocial = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const WEBHOOK_URL = `https://euwolzjbeczplmskxnpr.supabase.co/functions/v1/facebook-webhook`;
+  const WEBHOOK_BASE = `https://euwolzjbeczplmskxnpr.supabase.co/functions/v1`;
+  const WEBHOOK_URL = `${WEBHOOK_BASE}/facebook-webhook`;
+  const WA_WEBHOOK_URL = `${WEBHOOK_BASE}/whatsapp-webhook`;
+  const IG_WEBHOOK_URL = `${WEBHOOK_BASE}/instagram-webhook`;
   const VERIFY_TOKEN = "glynova_fb_verify_2024";
+  const IG_VERIFY_TOKEN = "glynova_ig_verify_2024";
 
   const handleTestConnection = async (platform: string) => {
     if (platform !== "facebook") {
