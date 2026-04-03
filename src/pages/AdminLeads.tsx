@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus, Share2 } from "lucide-react";
+import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus, Share2, BarChart3 } from "lucide-react";
 interface Lead {
   id: string;
   name: string;
@@ -144,6 +144,9 @@ const AdminLeads = () => {
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")} className="gap-1">
               <Share2 className="h-4 w-4" /> Social
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/ads-intelligence")} className="gap-1">
+              <BarChart3 className="h-4 w-4" /> Ads AI
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1">
               <LogOut className="h-4 w-4" /> Logout
