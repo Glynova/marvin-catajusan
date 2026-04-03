@@ -66,6 +66,13 @@ const UnifiedInbox = () => {
         if (selectedConvo && newMsg.conversation_id === selectedConvo.id) {
           setMessages((prev) => [...prev, newMsg]);
         }
+        // Show notification toast for incoming client messages
+        if (newMsg.sender === "client") {
+          toast({
+            title: `💬 New message on ${newMsg.platform || "chat"}`,
+            description: newMsg.message_text.slice(0, 80) + (newMsg.message_text.length > 80 ? "…" : ""),
+          });
+        }
         fetchConversations();
       })
       .subscribe();
