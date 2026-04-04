@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import BudgetAllocation from "@/components/BudgetAllocation";
 import {
   LogOut, Upload, BarChart3, TrendingUp, TrendingDown, AlertTriangle,
   DollarSign, Target, MousePointerClick, Eye, Download, FileText,
-  Brain, Zap, LayoutDashboard, Image, Users, Share2, Sparkles,
+  Brain, Zap, LayoutDashboard, Image, Users, Share2, Sparkles, Wallet,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
