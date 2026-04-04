@@ -14,6 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_ads: {
+        Row: {
+          audience: string
+          budget: number
+          campaign_id: string
+          conversions: number
+          cpc: number
+          created_at: string
+          creative_name: string
+          ctr: number
+          frequency: number
+          id: string
+          phase: string
+          revenue: number
+          roas: number
+          score: number
+          spend: number
+          status: string
+        }
+        Insert: {
+          audience?: string
+          budget?: number
+          campaign_id: string
+          conversions?: number
+          cpc?: number
+          created_at?: string
+          creative_name?: string
+          ctr?: number
+          frequency?: number
+          id?: string
+          phase?: string
+          revenue?: number
+          roas?: number
+          score?: number
+          spend?: number
+          status?: string
+        }
+        Update: {
+          audience?: string
+          budget?: number
+          campaign_id?: string
+          conversions?: number
+          cpc?: number
+          created_at?: string
+          creative_name?: string
+          ctr?: number
+          frequency?: number
+          id?: string
+          phase?: string
+          revenue?: number
+          roas?: number
+          score?: number
+          spend?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_ads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "budget_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_campaigns: {
+        Row: {
+          auto_optimize: boolean
+          created_at: string
+          evaluation_pct: number
+          id: string
+          name: string
+          scaling_pct: number
+          testing_pct: number
+          total_budget: number
+          updated_at: string
+        }
+        Insert: {
+          auto_optimize?: boolean
+          created_at?: string
+          evaluation_pct?: number
+          id?: string
+          name?: string
+          scaling_pct?: number
+          testing_pct?: number
+          total_budget?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_optimize?: boolean
+          created_at?: string
+          evaluation_pct?: number
+          id?: string
+          name?: string
+          scaling_pct?: number
+          testing_pct?: number
+          total_budget?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chatbot_config: {
         Row: {
           active_channels: Json
