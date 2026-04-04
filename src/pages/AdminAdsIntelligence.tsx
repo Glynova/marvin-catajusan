@@ -632,6 +632,11 @@ const AdminAdsIntelligence = () => {
               </div>
             )}
           </TabsContent>
+
+          {/* BUDGET ALLOCATION TAB */}
+          <TabsContent value="budget">
+            <BudgetAllocation />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
