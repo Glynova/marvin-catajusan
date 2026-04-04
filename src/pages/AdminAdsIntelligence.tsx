@@ -294,6 +294,7 @@ const AdminAdsIntelligence = () => {
             <TabsTrigger value="input"><Upload className="h-4 w-4 mr-1" /> Data Input</TabsTrigger>
             <TabsTrigger value="dashboard" disabled={!aggregate}><BarChart3 className="h-4 w-4 mr-1" /> Dashboard</TabsTrigger>
             <TabsTrigger value="report" disabled={!analysis}><FileText className="h-4 w-4 mr-1" /> AI Report</TabsTrigger>
+            <TabsTrigger value="budget"><Wallet className="h-4 w-4 mr-1" /> Budget Allocation</TabsTrigger>
           </TabsList>
 
           {/* DATA INPUT TAB */}
