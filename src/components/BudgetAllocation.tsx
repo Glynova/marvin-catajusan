@@ -218,7 +218,7 @@ export default function BudgetAllocation() {
     const phaseAds = ads.filter(a => a.phase === newAd.phase).length + 1;
     adObj.budget = (campaign.total_budget * phasePct / 100) / phaseAds;
 
-    const { data, error } = await supabase.from("budget_ads").insert(adObj).select().single();
+    const { data, error } = await supabase.from("budget_ads").insert([adObj as any]).select().single();
     if (error) {
       toast({ title: "Error adding ad", description: error.message, variant: "destructive" });
       return;
