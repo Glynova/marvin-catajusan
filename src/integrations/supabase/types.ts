@@ -285,6 +285,27 @@ export type Database = {
         }
         Relationships: []
       }
+      processed_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          platform: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          platform?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          platform?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
