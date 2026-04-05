@@ -496,9 +496,59 @@ const AdminSocial = () => {
                   </div>
                 </div>
                 <Button className="gap-1" onClick={handleSaveChatbot} disabled={savingChatbot}>
-                  {savingChatbot ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {savingChatbot ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   {savingChatbot ? "Saving…" : "Save Configuration"}
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Test Chatbot */}
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Send className="h-5 w-5 text-primary" /> Test Chatbot
+                </CardTitle>
+                <CardDescription className="text-xs">Simulate an incoming message and see the AI bot reply in real-time.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Test Message</label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={testMessage}
+                      onChange={(e) => setTestMessage(e.target.value)}
+                      placeholder="Type a test message..."
+                      className="bg-secondary border-border text-sm flex-1"
+                    />
+                    <Button onClick={handleTestChatbot} disabled={testingBot || !testMessage.trim()} className="gap-1">
+                      {testingBot ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+                      {testingBot ? "Testing…" : "Send Test"}
+                    </Button>
+                  </div>
+                </div>
+                {testResult && (
+                  <div className="space-y-3 p-4 rounded-lg bg-secondary/50 border border-border">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Badge variant={testResult.trigger_matched ? "default" : "secondary"}>
+                        {testResult.trigger_matched ? "✅ Trigger Matched" : "❌ No Trigger Match"}
+                      </Badge>
+                      {testResult.trigger_matched && (
+                        <span className="text-xs text-muted-foreground">
+                          Matched: <strong>{testResult.matched_word}</strong>
+                        </span>
+                      )}
+                      <Badge variant={testResult.ai_used ? "default" : "secondary"}>
+                        {testResult.ai_used ? "🤖 AI Reply" : "📝 Fallback"}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-muted-foreground">Bot Reply:</p>
+                      <div className="p-3 rounded-md bg-background border border-border text-sm">
+                        {testResult.bot_reply}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
