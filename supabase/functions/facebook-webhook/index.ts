@@ -9,6 +9,19 @@ const corsHeaders = {
 
 const VERIFY_TOKEN = "glynova_fb_verify_2024";
 
+function cleanReplyText(text: string): string {
+  return text
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .replace(/__/g, "")
+    .replace(/#{1,6}\s?/g, "")
+    .replace(/`/g, "")
+    .replace(/^\s*[-•]\s*/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -16,7 +29,6 @@ serve(async (req) => {
 
   const url = new URL(req.url);
 
-  // GET: Facebook webhook verification
   if (req.method === "GET") {
     const mode = url.searchParams.get("hub.mode");
     const token = url.searchParams.get("hub.verify_token");
@@ -28,7 +40,6 @@ serve(async (req) => {
     return new Response("Forbidden", { status: 403, headers: corsHeaders });
   }
 
-  // POST: Receive messages from Messenger
   if (req.method === "POST") {
     try {
       const body = await req.json();
@@ -40,7 +51,6 @@ serve(async (req) => {
       const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-      // Fetch chatbot config once for all messages
       const { data: botConfig } = await supabase
         .from("chatbot_config")
         .select("persona, trigger_words, settings, active_channels")
@@ -52,19 +62,45 @@ serve(async (req) => {
         : [];
       const settings = (botConfig?.settings as Record<string, boolean>) || {};
       const activeChannels = (botConfig?.active_channels as Record<string, boolean>) || {};
-      const isFBActive = activeChannels.facebook !== false; // default true
-      const systemPrompt = botConfig?.persona ||
-        "You are GLYNOVA's friendly AI assistant on Facebook Messenger. Help potential clients learn about digital marketing services. Keep replies short (2-3 sentences), warm, and professional. Always encourage booking a consultation.";
+      const isFBActive = activeChannels.facebook !== false;
+      const basePrompt = botConfig?.persona ||
+        "You are GLYNOVA's friendly AI assistant on Facebook Messenger. Help potential clients learn about digital marketing services.";
+      const systemPrompt = basePrompt + " Reply in simple plain text only. Do not use markdown, bold text, bullet points, headers, asterisks, or code formatting. Keep the reply clean, short (2-3 sentences), and human-like.";
 
       for (const entry of body.entry || []) {
         for (const event of entry.messaging || []) {
+          // Skip echo messages (sent by page itself)
+          if (event.message?.is_echo) {
+            console.log("Skipping echo message");
+            continue;
+          }
           if (!event.message?.text) continue;
 
+          const messageId = event.message.mid;
           const senderId = event.sender.id;
           const messageText = event.message.text;
           const messageLower = messageText.toLowerCase();
 
-          console.log(`Message from ${senderId}: ${messageText}`);
+          // Deduplicate: check if already processed
+          if (messageId) {
+            const { data: existing } = await supabase
+              .from("processed_messages")
+              .select("id")
+              .eq("message_id", messageId)
+              .maybeSingle();
+
+            if (existing) {
+              console.log(`Duplicate message ${messageId}, skipping`);
+              continue;
+            }
+
+            await supabase.from("processed_messages").insert({
+              message_id: messageId,
+              platform: "facebook",
+            });
+          }
+
+          console.log(`Message from ${senderId} [${messageId}]: ${messageText}`);
 
           // Upsert conversation
           const { data: existingConvo } = await supabase
@@ -106,9 +142,8 @@ serve(async (req) => {
             platform: "facebook",
           });
 
-          // Lead capture (auto-capture if enabled, default true)
+          // Lead capture
           if (settings.autoCaptureLead !== false) {
-            // Check if lead already exists for this sender
             const { data: existingLead } = await supabase
               .from("leads")
               .select("id")
@@ -126,8 +161,7 @@ serve(async (req) => {
             }
           }
 
-          // Check trigger words — if trigger words are set, only reply when matched
-          // If no trigger words configured, reply to all messages
+          // Check trigger words
           let shouldReply = triggerWords.length === 0;
           if (!shouldReply) {
             shouldReply = triggerWords.some((tw) => messageLower.includes(tw));
@@ -150,7 +184,7 @@ serve(async (req) => {
             continue;
           }
 
-          let replyText = "Hi! Thanks for reaching out. How can we help you today? 🙌";
+          let replyText = "Hi! Thanks for reaching out. How can we help you today?";
 
           try {
             const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -184,20 +218,24 @@ serve(async (req) => {
             console.error("AI reply error:", aiErr);
           }
 
-          // Store bot reply in messages
+          // Clean markdown from reply
+          const finalReply = cleanReplyText(replyText);
+          console.log(`Final clean reply to ${senderId}: ${finalReply}`);
+
+          // Store bot reply
           await supabase.from("messages").insert({
             conversation_id: convoId,
             sender: "admin",
-            message_text: replyText,
+            message_text: finalReply,
             platform: "facebook",
           });
 
           await supabase.from("conversations").update({
-            last_message: replyText,
+            last_message: finalReply,
             updated_at: new Date().toISOString(),
           }).eq("id", convoId);
 
-          // Send reply via Facebook Graph API
+          // Send reply via Facebook Graph API (single send)
           try {
             const fbRes = await fetch(
               `https://graph.facebook.com/v18.0/me/messages?access_token=${fbConn.access_token}`,
@@ -206,7 +244,7 @@ serve(async (req) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   recipient: { id: senderId },
-                  message: { text: replyText },
+                  message: { text: finalReply },
                 }),
               }
             );
