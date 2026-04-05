@@ -231,6 +231,33 @@ const AdminSocial = () => {
     }
   };
 
+  const handleTestChatbot = async () => {
+    setTestingBot(true);
+    setTestResult(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { toast({ title: "Error", description: "Not authenticated", variant: "destructive" }); return; }
+
+      const res = await supabase.functions.invoke("chatbot-test", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { message: testMessage, platform: "facebook" },
+      });
+
+      if (res.error) {
+        toast({ title: "Test Failed", description: res.error.message, variant: "destructive" });
+      } else if (res.data?.success) {
+        setTestResult(res.data);
+        toast({ title: "✅ Test Complete", description: res.data.ai_used ? "AI generated a reply!" : "Trigger not matched — used fallback." });
+      } else {
+        toast({ title: "Test Failed", description: res.data?.error || "Unknown error", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Test failed unexpectedly", variant: "destructive" });
+    } finally {
+      setTestingBot(false);
+    }
+  };
+
   const openEdit = (platform: string) => {
     const conn = connections.find((c) => c.platform === platform);
     setFormData(conn || {});
