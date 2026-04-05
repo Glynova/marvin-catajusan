@@ -108,6 +108,9 @@ const AdminSocial = () => {
   const [activeChannels, setActiveChannels] = useState<Record<string, boolean>>({});
   const [chatbotSettings, setChatbotSettings] = useState({ autoCaptureLead: true, sendBookingLink: true, notifyAdmin: true });
   const [savingChatbot, setSavingChatbot] = useState(false);
+  const [testingBot, setTestingBot] = useState(false);
+  const [testMessage, setTestMessage] = useState("Hi, I need help with marketing services");
+  const [testResult, setTestResult] = useState<{ trigger_matched: boolean; matched_word: string; ai_used: boolean; bot_reply: string } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
