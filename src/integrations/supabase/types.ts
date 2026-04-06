@@ -115,6 +115,47 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_metrics: {
+        Row: {
+          active_ads: number
+          campaign_id: string
+          created_at: string
+          id: string
+          revenue: number
+          roas: number
+          score: number
+          total_spend: number
+        }
+        Insert: {
+          active_ads?: number
+          campaign_id: string
+          created_at?: string
+          id?: string
+          revenue?: number
+          roas?: number
+          score?: number
+          total_spend?: number
+        }
+        Update: {
+          active_ads?: number
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          revenue?: number
+          roas?: number
+          score?: number
+          total_spend?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_metrics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: true
+            referencedRelation: "budget_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chatbot_config: {
         Row: {
           active_channels: Json
