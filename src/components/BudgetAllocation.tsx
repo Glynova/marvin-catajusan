@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DollarSign, TrendingUp, TrendingDown, Target, Zap, Download,
   Plus, Trash2, RefreshCw, BarChart3, AlertTriangle, CheckCircle2,
   PauseCircle, XCircle, Activity, Gauge, ArrowUpRight, ArrowDownRight,
+  ArrowLeft, Pencil, Check, X,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -110,14 +116,22 @@ function ScoreMeter({ score, size = 80 }: { score: number; size?: number }) {
 // ─── Main Component ─────────────────────────────────────────────────
 export default function BudgetAllocation() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const dashRef = useRef<HTMLDivElement>(null);
 
   const [campaign, setCampaign] = useState<BudgetCampaign | null>(null);
   const [ads, setAds] = useState<BudgetAd[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Inline edit states
+  const [editingName, setEditingName] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editingBudget, setEditingBudget] = useState(false);
+  const [editBudget, setEditBudget] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   // New campaign form
-  const [newName, setNewName] = useState("My Campaign");
+  const [newName, setNewName] = useState("");
   const [newBudget, setNewBudget] = useState("10000");
 
   // New ad form
@@ -288,6 +302,37 @@ export default function BudgetAllocation() {
     setCampaign({ ...campaign, auto_optimize: val });
     await supabase.from("budget_campaigns").update({ auto_optimize: val }).eq("id", campaign.id);
     toast({ title: val ? "Auto-Optimization Enabled" : "Auto-Optimization Disabled" });
+  };
+
+  // ── Save Name ──
+  const saveName = async () => {
+    if (!campaign || !editName.trim()) return;
+    await supabase.from("budget_campaigns").update({ name: editName.trim() }).eq("id", campaign.id);
+    setCampaign({ ...campaign, name: editName.trim() });
+    setEditingName(false);
+    toast({ title: "Campaign name updated" });
+  };
+
+  // ── Save Budget ──
+  const saveBudget = async () => {
+    if (!campaign) return;
+    const val = parseFloat(editBudget) || 0;
+    if (val <= 0) { toast({ title: "Enter a valid budget", variant: "destructive" }); return; }
+    await supabase.from("budget_campaigns").update({ total_budget: val }).eq("id", campaign.id);
+    setCampaign({ ...campaign, total_budget: val });
+    setEditingBudget(false);
+    toast({ title: "Budget updated" });
+  };
+
+  // ── Delete Campaign ──
+  const deleteCampaign = async () => {
+    if (!campaign) return;
+    await supabase.from("budget_ads").delete().eq("campaign_id", campaign.id);
+    await supabase.from("budget_campaigns").delete().eq("id", campaign.id);
+    setCampaign(null);
+    setAds([]);
+    setShowDeleteDialog(false);
+    toast({ title: "Campaign deleted" });
   };
 
   // ── Export CSV ──
@@ -461,24 +506,100 @@ export default function BudgetAllocation() {
 
   return (
     <div className="space-y-6" ref={dashRef}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-heading font-bold flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-primary" /> {campaign.name}
-          </h2>
-          <p className="text-sm text-muted-foreground">Total Budget: ${campaign.total_budget.toLocaleString()}</p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Switch checked={campaign.auto_optimize} onCheckedChange={toggleAutoOptimize} />
-            <Label className="text-sm">Auto Optimize</Label>
+      {/* Campaign Navbar */}
+      <div className="border rounded-lg bg-card p-3">
+        <div className="flex flex-col gap-3">
+          {/* Top row: Back + Delete */}
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/ads-intelligence")}>
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back to Ads Intelligence
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setShowDeleteDialog(true)}>
+              <Trash2 className="h-4 w-4 mr-1" /> Delete
+            </Button>
           </div>
-          <Button size="sm" onClick={runEvaluation}><RefreshCw className="h-4 w-4 mr-1" /> Run Evaluation</Button>
-          <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
-          <Button size="sm" variant="outline" onClick={exportPNG}><Download className="h-4 w-4 mr-1" /> PNG</Button>
+
+          {/* Campaign Name - inline edit */}
+          <div className="flex items-center gap-2">
+            {editingName ? (
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && saveName()}
+                  className="h-8 max-w-xs"
+                  autoFocus
+                />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveName}><Check className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingName(false)}><X className="h-4 w-4" /></Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-heading font-bold">{campaign.name}</h2>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditName(campaign.name); setEditingName(true); }}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Budget - inline edit */}
+          <div className="flex items-center gap-2">
+            {editingBudget ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Budget: $</span>
+                <Input
+                  type="number"
+                  value={editBudget}
+                  onChange={e => setEditBudget(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && saveBudget()}
+                  className="h-8 w-32"
+                  autoFocus
+                />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveBudget}><Check className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingBudget(false)}><X className="h-4 w-4" /></Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Total Budget: <strong>${campaign.total_budget.toLocaleString()}</strong></span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditBudget(String(campaign.total_budget)); setEditingBudget(true); }}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Actions row */}
+          <div className="flex items-center gap-3 flex-wrap border-t pt-3">
+            <div className="flex items-center gap-2">
+              <Switch checked={campaign.auto_optimize} onCheckedChange={toggleAutoOptimize} />
+              <Label className="text-sm">Auto Optimize</Label>
+            </div>
+            <Button size="sm" onClick={runEvaluation}><RefreshCw className="h-4 w-4 mr-1" /> Run Evaluation</Button>
+            <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
+            <Button size="sm" variant="outline" onClick={exportPNG}><Download className="h-4 w-4 mr-1" /> PNG</Button>
+          </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Campaign?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{campaign.name}" and all its ads. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteCampaign} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
