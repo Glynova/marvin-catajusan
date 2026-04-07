@@ -10,8 +10,6 @@ import AdminLeads from "./pages/AdminLeads.tsx";
 import AdminPortfolio from "./pages/AdminPortfolio.tsx";
 import AdminSocial from "./pages/AdminSocial.tsx";
 import AdminAdsIntelligence from "./pages/AdminAdsIntelligence.tsx";
-import AdminCampaigns from "./pages/AdminCampaigns.tsx";
-import AdminCampaignDetail from "./pages/AdminCampaignDetail.tsx";
 
 const queryClient = new QueryClient();
 
@@ -27,8 +25,6 @@ const App = () => (
           <Route path="/admin/leads" element={<AdminLeads />} />
           <Route path="/admin/portfolio" element={<AdminPortfolio />} />
           <Route path="/admin/ads-intelligence" element={<AdminAdsIntelligence />} />
-          <Route path="/admin/campaigns" element={<AdminCampaigns />} />
-          <Route path="/admin/campaign/:id" element={<AdminCampaignDetail />} />
           <Route path="/admin/social" element={<AdminSocial />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
