@@ -138,6 +138,7 @@ export default function BudgetAllocation() {
   const [newAd, setNewAd] = useState({
     creative_name: "", audience: "", phase: "testing",
     spend: "", revenue: "", ctr: "", cpc: "", conversions: "", frequency: "",
+    cost_of_goods: "", impressions: "", clicks: "", add_to_cart: "", initiate_checkout: "", purchases: "",
   });
 
   // ── Load ──
@@ -210,22 +211,30 @@ export default function BudgetAllocation() {
     const cpc = parseFloat(newAd.cpc) || 0;
     const conversions = parseInt(newAd.conversions) || 0;
     const frequency = parseFloat(newAd.frequency) || 1;
+    const cost_of_goods = parseFloat(newAd.cost_of_goods) || 0;
+    const impressions = parseInt(newAd.impressions) || 0;
+    const clicks = parseInt(newAd.clicks) || 0;
+    const add_to_cart = parseInt(newAd.add_to_cart) || 0;
+    const initiate_checkout = parseInt(newAd.initiate_checkout) || 0;
+    const purchases = parseInt(newAd.purchases) || 0;
     const roas = spend > 0 ? revenue / spend : 0;
+    const profit = revenue - spend - cost_of_goods;
+    const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-    const adObj: Partial<BudgetAd> = {
+    const adObj: Record<string, unknown> = {
       campaign_id: campaign.id,
       creative_name: newAd.creative_name || `Ad ${ads.length + 1}`,
       audience: newAd.audience || "General",
       phase: newAd.phase,
       spend, revenue, ctr, cpc, conversions, roas, frequency,
+      cost_of_goods, impressions, clicks, add_to_cart, initiate_checkout, purchases,
+      profit, margin,
       budget: 0, score: 0, status: "HOLD",
     };
 
-    // Calculate score & status
-    adObj.score = calculateScore(adObj as BudgetAd);
-    adObj.status = evaluateAd(adObj as BudgetAd);
+    adObj.score = calculateScore(adObj as unknown as BudgetAd);
+    adObj.status = evaluateAd(adObj as unknown as BudgetAd);
 
-    // Auto-allocate budget based on phase
     const phasePct = newAd.phase === "testing" ? campaign.testing_pct
       : newAd.phase === "evaluation" ? campaign.evaluation_pct
       : campaign.scaling_pct;
@@ -238,7 +247,11 @@ export default function BudgetAllocation() {
       return;
     }
     setAds(prev => [...prev, data as unknown as BudgetAd]);
-    setNewAd({ creative_name: "", audience: "", phase: "testing", spend: "", revenue: "", ctr: "", cpc: "", conversions: "", frequency: "" });
+    setNewAd({
+      creative_name: "", audience: "", phase: "testing",
+      spend: "", revenue: "", ctr: "", cpc: "", conversions: "", frequency: "",
+      cost_of_goods: "", impressions: "", clicks: "", add_to_cart: "", initiate_checkout: "", purchases: "",
+    });
     toast({ title: "Ad Added", description: `Status: ${adObj.status}` });
   };
 
@@ -764,6 +777,12 @@ export default function BudgetAllocation() {
             <Input placeholder="CPC ($)" type="number" value={newAd.cpc} onChange={e => setNewAd({ ...newAd, cpc: e.target.value })} />
             <Input placeholder="Conversions" type="number" value={newAd.conversions} onChange={e => setNewAd({ ...newAd, conversions: e.target.value })} />
             <Input placeholder="Frequency" type="number" value={newAd.frequency} onChange={e => setNewAd({ ...newAd, frequency: e.target.value })} />
+            <Input placeholder="Cost of Goods ($)" type="number" value={newAd.cost_of_goods} onChange={e => setNewAd({ ...newAd, cost_of_goods: e.target.value })} />
+            <Input placeholder="Impressions" type="number" value={newAd.impressions} onChange={e => setNewAd({ ...newAd, impressions: e.target.value })} />
+            <Input placeholder="Clicks" type="number" value={newAd.clicks} onChange={e => setNewAd({ ...newAd, clicks: e.target.value })} />
+            <Input placeholder="Add to Cart" type="number" value={newAd.add_to_cart} onChange={e => setNewAd({ ...newAd, add_to_cart: e.target.value })} />
+            <Input placeholder="Init. Checkout" type="number" value={newAd.initiate_checkout} onChange={e => setNewAd({ ...newAd, initiate_checkout: e.target.value })} />
+            <Input placeholder="Purchases" type="number" value={newAd.purchases} onChange={e => setNewAd({ ...newAd, purchases: e.target.value })} />
             <Button onClick={addAd} className="w-full"><Plus className="h-4 w-4 mr-1" /> Add</Button>
           </div>
         </CardContent>
