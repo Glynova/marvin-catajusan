@@ -116,14 +116,22 @@ function ScoreMeter({ score, size = 80 }: { score: number; size?: number }) {
 // ─── Main Component ─────────────────────────────────────────────────
 export default function BudgetAllocation() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const dashRef = useRef<HTMLDivElement>(null);
 
   const [campaign, setCampaign] = useState<BudgetCampaign | null>(null);
   const [ads, setAds] = useState<BudgetAd[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Inline edit states
+  const [editingName, setEditingName] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editingBudget, setEditingBudget] = useState(false);
+  const [editBudget, setEditBudget] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   // New campaign form
-  const [newName, setNewName] = useState("My Campaign");
+  const [newName, setNewName] = useState("");
   const [newBudget, setNewBudget] = useState("10000");
 
   // New ad form
