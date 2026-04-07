@@ -506,24 +506,100 @@ export default function BudgetAllocation() {
 
   return (
     <div className="space-y-6" ref={dashRef}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-heading font-bold flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-primary" /> {campaign.name}
-          </h2>
-          <p className="text-sm text-muted-foreground">Total Budget: ${campaign.total_budget.toLocaleString()}</p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Switch checked={campaign.auto_optimize} onCheckedChange={toggleAutoOptimize} />
-            <Label className="text-sm">Auto Optimize</Label>
+      {/* Campaign Navbar */}
+      <div className="border rounded-lg bg-card p-3">
+        <div className="flex flex-col gap-3">
+          {/* Top row: Back + Delete */}
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/ads-intelligence")}>
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back to Ads Intelligence
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setShowDeleteDialog(true)}>
+              <Trash2 className="h-4 w-4 mr-1" /> Delete
+            </Button>
           </div>
-          <Button size="sm" onClick={runEvaluation}><RefreshCw className="h-4 w-4 mr-1" /> Run Evaluation</Button>
-          <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
-          <Button size="sm" variant="outline" onClick={exportPNG}><Download className="h-4 w-4 mr-1" /> PNG</Button>
+
+          {/* Campaign Name - inline edit */}
+          <div className="flex items-center gap-2">
+            {editingName ? (
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && saveName()}
+                  className="h-8 max-w-xs"
+                  autoFocus
+                />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveName}><Check className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingName(false)}><X className="h-4 w-4" /></Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-heading font-bold">{campaign.name}</h2>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditName(campaign.name); setEditingName(true); }}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Budget - inline edit */}
+          <div className="flex items-center gap-2">
+            {editingBudget ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Budget: $</span>
+                <Input
+                  type="number"
+                  value={editBudget}
+                  onChange={e => setEditBudget(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && saveBudget()}
+                  className="h-8 w-32"
+                  autoFocus
+                />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={saveBudget}><Check className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingBudget(false)}><X className="h-4 w-4" /></Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Total Budget: <strong>${campaign.total_budget.toLocaleString()}</strong></span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditBudget(String(campaign.total_budget)); setEditingBudget(true); }}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Actions row */}
+          <div className="flex items-center gap-3 flex-wrap border-t pt-3">
+            <div className="flex items-center gap-2">
+              <Switch checked={campaign.auto_optimize} onCheckedChange={toggleAutoOptimize} />
+              <Label className="text-sm">Auto Optimize</Label>
+            </div>
+            <Button size="sm" onClick={runEvaluation}><RefreshCw className="h-4 w-4 mr-1" /> Run Evaluation</Button>
+            <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
+            <Button size="sm" variant="outline" onClick={exportPNG}><Download className="h-4 w-4 mr-1" /> PNG</Button>
+          </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Campaign?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{campaign.name}" and all its ads. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteCampaign} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
