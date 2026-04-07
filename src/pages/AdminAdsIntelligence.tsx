@@ -9,10 +9,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import BudgetAllocation from "@/components/BudgetAllocation";
+import ProfitAnalyzer from "@/components/ProfitAnalyzer";
+import AIPredictionEngine from "@/components/AIPredictionEngine";
+import FunnelLeakDetector from "@/components/FunnelLeakDetector";
+import FunnelOptimizer from "@/components/FunnelOptimizer";
 import {
   LogOut, Upload, BarChart3, TrendingUp, TrendingDown, AlertTriangle,
   DollarSign, Target, MousePointerClick, Eye, Download, FileText,
   Brain, Zap, LayoutDashboard, Image, Users, Share2, Sparkles, Wallet,
+  PieChart as PieChartIcon, Gauge, Search,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -295,6 +300,10 @@ const AdminAdsIntelligence = () => {
             <TabsTrigger value="dashboard" disabled={!aggregate}><BarChart3 className="h-4 w-4 mr-1" /> Dashboard</TabsTrigger>
             <TabsTrigger value="report" disabled={!analysis}><FileText className="h-4 w-4 mr-1" /> AI Report</TabsTrigger>
             <TabsTrigger value="budget"><Wallet className="h-4 w-4 mr-1" /> Budget Allocation</TabsTrigger>
+            <TabsTrigger value="profit"><PieChartIcon className="h-4 w-4 mr-1" /> Profit Analyzer</TabsTrigger>
+            <TabsTrigger value="predictions"><Brain className="h-4 w-4 mr-1" /> AI Predictions</TabsTrigger>
+            <TabsTrigger value="funnel-leak"><Search className="h-4 w-4 mr-1" /> Funnel Leaks</TabsTrigger>
+            <TabsTrigger value="funnel-optimize"><Gauge className="h-4 w-4 mr-1" /> Funnel Optimizer</TabsTrigger>
           </TabsList>
 
           {/* DATA INPUT TAB */}
@@ -636,6 +645,26 @@ const AdminAdsIntelligence = () => {
           {/* BUDGET ALLOCATION TAB */}
           <TabsContent value="budget">
             <BudgetAllocation />
+          </TabsContent>
+
+          {/* PROFIT ANALYZER TAB */}
+          <TabsContent value="profit">
+            <ProfitAnalyzer />
+          </TabsContent>
+
+          {/* AI PREDICTIONS TAB */}
+          <TabsContent value="predictions">
+            <AIPredictionEngine />
+          </TabsContent>
+
+          {/* FUNNEL LEAK DETECTOR TAB */}
+          <TabsContent value="funnel-leak">
+            <FunnelLeakDetector />
+          </TabsContent>
+
+          {/* FUNNEL OPTIMIZER TAB */}
+          <TabsContent value="funnel-optimize">
+            <FunnelOptimizer />
           </TabsContent>
         </Tabs>
       </div>
