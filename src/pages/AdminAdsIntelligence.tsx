@@ -295,7 +295,7 @@ const AdminAdsIntelligence = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex-wrap h-auto gap-1">
             <TabsTrigger value="input"><Upload className="h-4 w-4 mr-1" /> Data Input</TabsTrigger>
             <TabsTrigger value="dashboard" disabled={!aggregate}><BarChart3 className="h-4 w-4 mr-1" /> Dashboard</TabsTrigger>
             <TabsTrigger value="report" disabled={!analysis}><FileText className="h-4 w-4 mr-1" /> AI Report</TabsTrigger>
