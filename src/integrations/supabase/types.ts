@@ -16,17 +16,30 @@ export type Database = {
     Tables: {
       budget_ads: {
         Row: {
+          add_to_cart: number
           audience: string
           budget: number
           campaign_id: string
+          clicks: number
+          confidence_score: number
           conversions: number
+          cost_of_goods: number
           cpc: number
           created_at: string
           creative_name: string
           ctr: number
           frequency: number
           id: string
+          impressions: number
+          initiate_checkout: number
+          margin: number
           phase: string
+          predicted_margin: number
+          predicted_profit: number
+          predicted_roas: number
+          profit: number
+          purchases: number
+          recommendation: string
           revenue: number
           roas: number
           score: number
@@ -34,17 +47,30 @@ export type Database = {
           status: string
         }
         Insert: {
+          add_to_cart?: number
           audience?: string
           budget?: number
           campaign_id: string
+          clicks?: number
+          confidence_score?: number
           conversions?: number
+          cost_of_goods?: number
           cpc?: number
           created_at?: string
           creative_name?: string
           ctr?: number
           frequency?: number
           id?: string
+          impressions?: number
+          initiate_checkout?: number
+          margin?: number
           phase?: string
+          predicted_margin?: number
+          predicted_profit?: number
+          predicted_roas?: number
+          profit?: number
+          purchases?: number
+          recommendation?: string
           revenue?: number
           roas?: number
           score?: number
@@ -52,17 +78,30 @@ export type Database = {
           status?: string
         }
         Update: {
+          add_to_cart?: number
           audience?: string
           budget?: number
           campaign_id?: string
+          clicks?: number
+          confidence_score?: number
           conversions?: number
+          cost_of_goods?: number
           cpc?: number
           created_at?: string
           creative_name?: string
           ctr?: number
           frequency?: number
           id?: string
+          impressions?: number
+          initiate_checkout?: number
+          margin?: number
           phase?: string
+          predicted_margin?: number
+          predicted_profit?: number
+          predicted_roas?: number
+          profit?: number
+          purchases?: number
+          recommendation?: string
           revenue?: number
           roas?: number
           score?: number
