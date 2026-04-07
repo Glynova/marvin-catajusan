@@ -304,6 +304,37 @@ export default function BudgetAllocation() {
     toast({ title: val ? "Auto-Optimization Enabled" : "Auto-Optimization Disabled" });
   };
 
+  // ── Save Name ──
+  const saveName = async () => {
+    if (!campaign || !editName.trim()) return;
+    await supabase.from("budget_campaigns").update({ name: editName.trim() }).eq("id", campaign.id);
+    setCampaign({ ...campaign, name: editName.trim() });
+    setEditingName(false);
+    toast({ title: "Campaign name updated" });
+  };
+
+  // ── Save Budget ──
+  const saveBudget = async () => {
+    if (!campaign) return;
+    const val = parseFloat(editBudget) || 0;
+    if (val <= 0) { toast({ title: "Enter a valid budget", variant: "destructive" }); return; }
+    await supabase.from("budget_campaigns").update({ total_budget: val }).eq("id", campaign.id);
+    setCampaign({ ...campaign, total_budget: val });
+    setEditingBudget(false);
+    toast({ title: "Budget updated" });
+  };
+
+  // ── Delete Campaign ──
+  const deleteCampaign = async () => {
+    if (!campaign) return;
+    await supabase.from("budget_ads").delete().eq("campaign_id", campaign.id);
+    await supabase.from("budget_campaigns").delete().eq("id", campaign.id);
+    setCampaign(null);
+    setAds([]);
+    setShowDeleteDialog(false);
+    toast({ title: "Campaign deleted" });
+  };
+
   // ── Export CSV ──
   const exportCSV = () => {
     if (!ads.length) return;
