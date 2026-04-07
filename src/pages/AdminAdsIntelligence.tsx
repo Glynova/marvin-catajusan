@@ -278,9 +278,6 @@ const AdminAdsIntelligence = () => {
             <Button variant="ghost" size="sm" onClick={() => navigate("/admin/portfolio")}>
               <Image className="h-4 w-4 mr-1" /> Portfolio
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/campaigns")}>
-              <Wallet className="h-4 w-4 mr-1" /> Campaigns
-            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")}>
               <Share2 className="h-4 w-4 mr-1" /> Social
             </Button>
