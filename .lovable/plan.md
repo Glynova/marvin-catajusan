@@ -1,23 +1,24 @@
 
 
-## Fix Remaining Spacing Issues on Mobile
+## Remove Empty Gap in Hero Section
 
-### Findings from Browser Testing
+### Problem
+The hero section has `md:min-h-[80vh]` which forces a minimum height of 80% viewport on medium+ screens. When the content is shorter than this minimum, a large empty white space appears between the hero content and the About section. This is visible in the screenshot.
 
-After scrolling through the entire landing page on mobile (375px), here's what was found:
+### Fix
+In `src/components/HeroSection.tsx`, remove the min-height constraint entirely and let content determine the section height naturally. This works on both mobile and desktop.
 
-1. **Hero section**: The CTA buttons have `mb-16` (64px) before the stats grid — this creates an unnecessarily large gap on mobile
-2. **Section headers**: All sections use `mb-16` on their heading blocks — slightly excessive on mobile screens
-3. **Section padding**: Already tightened to `py-14 md:py-20` — this is good
-4. **Section-to-section flow**: All sections transition consistently with `section-padding` — no rogue gaps
+**Line 14 — change:**
+```tsx
+// From:
+<section className="relative min-h-0 md:min-h-[80vh] flex items-start pt-24 pb-16 overflow-hidden" ...>
 
-### Changes
+// To:
+<section className="relative flex items-start pt-24 pb-16 overflow-hidden" ...>
+```
 
-**1. `src/components/HeroSection.tsx`**
-- Reduce CTA buttons bottom margin from `mb-16` to `mb-10 md:mb-16` (less gap before stats on mobile)
+This single change removes `min-h-0 md:min-h-[80vh]`, so the hero section naturally wraps its content on all screen sizes — no forced empty space.
 
-**2. `src/components/ServicesSection.tsx`, `CaseStudiesSection.tsx`, `ProcessSection.tsx`, `PortfolioSection.tsx`, `TestimonialsSection.tsx`**
-- Reduce section header `mb-16` to `mb-10 md:mb-16` across all five sections (tighter on mobile, unchanged on desktop)
-
-These are small, targeted tweaks — no content, color, or layout changes. Just tighter vertical rhythm on mobile.
+### Files Changed
+- `src/components/HeroSection.tsx` — one class change on line 14
 
