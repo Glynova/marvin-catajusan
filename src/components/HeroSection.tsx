@@ -44,7 +44,7 @@ const HeroSection = () =>
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-wrap gap-4 mb-16">
+          className="flex flex-wrap gap-4 mb-10 md:mb-16">
           
             <Button variant="hero" size="lg" asChild>
               <a href="#contact">
