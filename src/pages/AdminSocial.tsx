@@ -310,10 +310,6 @@ const AdminSocial = () => {
     await fetchConnections();
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin-portal");
-  };
 
   const maskValue = (val: string) => val ? "•".repeat(Math.min(val.length, 20)) + val.slice(-4) : "";
 

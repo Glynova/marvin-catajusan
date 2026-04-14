@@ -93,10 +93,6 @@ const AdminLeads = () => {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin-portal");
-  };
 
   const handleAddLead = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

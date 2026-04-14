@@ -177,10 +177,6 @@ const AdminPortfolio = () => {
     }
   }, [items]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin-portal");
-  };
 
   return (
     <div className="min-h-screen bg-background">
