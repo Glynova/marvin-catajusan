@@ -531,7 +531,7 @@ const AdminAdsIntelligence = () => {
                       <Download className="h-4 w-4 mr-1" /> Export CSV
                     </Button>
                     <Button variant="outline" onClick={exportPNG}>
-                      <Image className="h-4 w-4 mr-1" /> Export PNG
+                      <ImageIcon className="h-4 w-4 mr-1" /> Export PNG
                     </Button>
                   </div>
                 </>
@@ -615,7 +615,7 @@ const AdminAdsIntelligence = () => {
                 {/* Export */}
                 <div className="flex flex-wrap gap-3">
                   <Button variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
-                  <Button variant="outline" onClick={exportPNG}><Image className="h-4 w-4 mr-1" /> PNG</Button>
+                  <Button variant="outline" onClick={exportPNG}><ImageIcon className="h-4 w-4 mr-1" /> PNG</Button>
                 </div>
               </div>
             )}
