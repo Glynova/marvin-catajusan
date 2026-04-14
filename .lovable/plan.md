@@ -1,23 +1,23 @@
 
 
-## Fix Empty Gap Between Hero and About Sections
+## Fix Remaining Spacing Issues on Mobile
 
-### Root Cause
-The hero section uses `min-h-[80vh]` which forces it to be at least 80% of viewport height. On mobile, the hero content is shorter than this minimum, leaving a large empty gap at the bottom before the About section.
+### Findings from Browser Testing
 
-### Fix
-In `src/components/HeroSection.tsx` line 14, change the min-height to be responsive:
+After scrolling through the entire landing page on mobile (375px), here's what was found:
 
-```tsx
-// From:
-<section className="relative min-h-[80vh] flex items-start pt-24 pb-16 overflow-hidden" ...>
+1. **Hero section**: The CTA buttons have `mb-16` (64px) before the stats grid — this creates an unnecessarily large gap on mobile
+2. **Section headers**: All sections use `mb-16` on their heading blocks — slightly excessive on mobile screens
+3. **Section padding**: Already tightened to `py-14 md:py-20` — this is good
+4. **Section-to-section flow**: All sections transition consistently with `section-padding` — no rogue gaps
 
-// To:
-<section className="relative min-h-0 md:min-h-[80vh] flex items-start pt-24 pb-16 overflow-hidden" ...>
-```
+### Changes
 
-This removes the minimum height constraint on mobile (content determines height) while keeping the 80vh minimum on desktop where there's enough content to fill it.
+**1. `src/components/HeroSection.tsx`**
+- Reduce CTA buttons bottom margin from `mb-16` to `mb-10 md:mb-16` (less gap before stats on mobile)
 
-### Files
-- `src/components/HeroSection.tsx` — one class change on line 14
+**2. `src/components/ServicesSection.tsx`, `CaseStudiesSection.tsx`, `ProcessSection.tsx`, `PortfolioSection.tsx`, `TestimonialsSection.tsx`**
+- Reduce section header `mb-16` to `mb-10 md:mb-16` across all five sections (tighter on mobile, unchanged on desktop)
+
+These are small, targeted tweaks — no content, color, or layout changes. Just tighter vertical rhythm on mobile.
 
