@@ -14,11 +14,12 @@ import AIPredictionEngine from "@/components/AIPredictionEngine";
 import FunnelLeakDetector from "@/components/FunnelLeakDetector";
 import FunnelOptimizer from "@/components/FunnelOptimizer";
 import {
-  LogOut, Upload, BarChart3, TrendingUp, TrendingDown, AlertTriangle,
+  Upload, BarChart3, TrendingUp, TrendingDown, AlertTriangle,
   DollarSign, Target, MousePointerClick, Eye, Download, FileText,
-  Brain, Zap, LayoutDashboard, Image, Users, Share2, Sparkles, Wallet,
+  Brain, Zap, Sparkles, Wallet, Image as ImageIcon,
   PieChart as PieChartIcon, Gauge, Search,
 } from "lucide-react";
+import AdminNavbar from "@/components/AdminNavbar";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area, Legend,
@@ -243,10 +244,6 @@ const AdminAdsIntelligence = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin-portal");
-  };
 
   const funnelData = aggregate
     ? [
@@ -269,29 +266,7 @@ const AdminAdsIntelligence = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b bg-card/80 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Brain className="h-6 w-6 text-primary" />
-            <h1 className="font-heading text-lg font-bold">AI Ads Intelligence</h1>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/leads")}>
-              <Users className="h-4 w-4 mr-1" /> Leads
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/portfolio")}>
-              <Image className="h-4 w-4 mr-1" /> Portfolio
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")}>
-              <Share2 className="h-4 w-4 mr-1" /> Social
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-1" /> Logout
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <AdminNavbar />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={tab} onValueChange={setTab}>
@@ -552,7 +527,7 @@ const AdminAdsIntelligence = () => {
                       <Download className="h-4 w-4 mr-1" /> Export CSV
                     </Button>
                     <Button variant="outline" onClick={exportPNG}>
-                      <Image className="h-4 w-4 mr-1" /> Export PNG
+                      <ImageIcon className="h-4 w-4 mr-1" /> Export PNG
                     </Button>
                   </div>
                 </>
@@ -636,7 +611,7 @@ const AdminAdsIntelligence = () => {
                 {/* Export */}
                 <div className="flex flex-wrap gap-3">
                   <Button variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
-                  <Button variant="outline" onClick={exportPNG}><Image className="h-4 w-4 mr-1" /> PNG</Button>
+                  <Button variant="outline" onClick={exportPNG}><ImageIcon className="h-4 w-4 mr-1" /> PNG</Button>
                 </div>
               </div>
             )}

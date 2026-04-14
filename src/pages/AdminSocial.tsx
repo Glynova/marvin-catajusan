@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LogOut, LayoutDashboard, Image, Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2, Wifi, Copy, Check } from "lucide-react";
+import { Share2, MessageCircle, Send, Bot, CheckCircle2, AlertCircle, Settings, Eye, EyeOff, Save, Loader2, Wifi, Copy, Check } from "lucide-react";
+import AdminNavbar from "@/components/AdminNavbar";
 import UnifiedInbox from "@/components/UnifiedInbox";
 
 interface SocialConnection {
@@ -309,10 +310,6 @@ const AdminSocial = () => {
     await fetchConnections();
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin-portal");
-  };
 
   const maskValue = (val: string) => val ? "•".repeat(Math.min(val.length, 20)) + val.slice(-4) : "";
 
@@ -323,30 +320,9 @@ const AdminSocial = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/60 backdrop-blur-xl sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <a href="/" className="font-heading text-lg font-bold gradient-text">GLYNOVA</a>
-            <span className="text-xs text-muted-foreground">Admin</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/leads")} className="gap-1">
-              <LayoutDashboard className="h-4 w-4" /> Leads
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/portfolio")} className="gap-1">
-              <Image className="h-4 w-4" /> Portfolio
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")} className="gap-1 text-primary">
-              <Share2 className="h-4 w-4" /> Social
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1">
-              <LogOut className="h-4 w-4" /> Logout
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AdminNavbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="mb-8">
           <h1 className="font-heading text-2xl font-bold flex items-center gap-2">
             <Share2 className="h-6 w-6 text-primary" /> Social Platform Integrations
