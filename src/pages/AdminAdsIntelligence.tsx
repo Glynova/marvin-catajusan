@@ -244,10 +244,6 @@ const AdminAdsIntelligence = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin-portal");
-  };
 
   const funnelData = aggregate
     ? [
