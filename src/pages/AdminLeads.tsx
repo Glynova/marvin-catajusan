@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LogOut, Search, ArrowUpDown, LayoutDashboard, Image, Plus, Share2, BarChart3 } from "lucide-react";
+import { Search, ArrowUpDown, Plus } from "lucide-react";
+import AdminNavbar from "@/components/AdminNavbar";
 interface Lead {
   id: string;
   name: string;
@@ -129,33 +130,9 @@ const AdminLeads = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/60 backdrop-blur-xl sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <a href="/" className="font-heading text-lg font-bold gradient-text">GLYNOVA</a>
-            <span className="text-xs text-muted-foreground">Admin</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/leads")} className="gap-1">
-              <LayoutDashboard className="h-4 w-4" /> Leads
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/portfolio")} className="gap-1">
-              <Image className="h-4 w-4" /> Portfolio
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/social")} className="gap-1">
-              <Share2 className="h-4 w-4" /> Social
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/ads-intelligence")} className="gap-1">
-              <BarChart3 className="h-4 w-4" /> Ads AI
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-1">
-              <LogOut className="h-4 w-4" /> Logout
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AdminNavbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-heading text-2xl font-bold">Lead Management</h1>
           <Dialog open={addOpen} onOpenChange={setAddOpen}>
