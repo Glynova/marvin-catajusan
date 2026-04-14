@@ -16,7 +16,7 @@ import FunnelOptimizer from "@/components/FunnelOptimizer";
 import {
   Upload, BarChart3, TrendingUp, TrendingDown, AlertTriangle,
   DollarSign, Target, MousePointerClick, Eye, Download, FileText,
-  Brain, Zap, Sparkles, Wallet,
+  Brain, Zap, Sparkles, Wallet, Image as ImageIcon,
   PieChart as PieChartIcon, Gauge, Search,
 } from "lucide-react";
 import AdminNavbar from "@/components/AdminNavbar";
