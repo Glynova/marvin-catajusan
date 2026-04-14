@@ -11,7 +11,7 @@ const stats = [
 
 
 const HeroSection = () =>
-<section className="relative min-h-0 md:min-h-[80vh] flex items-start pt-24 pb-16 overflow-hidden" style={{ backgroundImage: "var(--gradient-hero)" }}>
+<section className="relative flex items-start pt-24 pb-16 overflow-hidden" style={{ backgroundImage: "var(--gradient-hero)" }}>
     <div className="section-container w-full">
       <div className="grid md:grid-cols-2 gap-8 items-center">
         <div>
