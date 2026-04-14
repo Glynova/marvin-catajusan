@@ -63,7 +63,7 @@ const PortfolioSection = () => (
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-center max-w-2xl mx-auto mb-16"
+        className="text-center max-w-2xl mx-auto mb-10 md:mb-16"
       >
         <span className="text-primary text-sm font-medium uppercase tracking-widest">Portfolio</span>
         <h2 className="font-heading text-3xl lg:text-4xl font-bold mt-3 mb-4">
