@@ -48,7 +48,7 @@ const AboutSection = () =>
             <span className="gradient-text">Generate Revenue on Autopilot</span>
           </h2>
           <p className="text-muted-foreground mb-6 leading-relaxed">
-            With years of experience in digital marketing, brand strategy, and lead generation, I've helped 20+ businesses transform their online presence into predictable revenue engines. I don't just run ads — I build complete growth ecosystems.
+            With years of experience in digital marketing, brand strategy, and lead generation, I've helped 10+ businesses transform their online presence into predictable revenue engines. I don't just run ads — I build complete growth ecosystems.
           </p>
           <p className="text-muted-foreground mb-8 leading-relaxed">
             My mission is simple: eliminate wasted ad spend, create brands that sell themselves, and build automated funnels that work while you sleep. Every strategy I deploy is rooted in data, tested by results, and designed to scale.
