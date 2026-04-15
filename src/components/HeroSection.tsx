@@ -7,7 +7,7 @@ import LazyImage from "@/components/LazyImage";
 const stats = [
 { icon: TrendingUp, value: "300%+", label: "Avg. ROI Increase" },
 { icon: Target, value: "10K+", label: "Leads Generated" },
-{ icon: Zap, value: "50+", label: "Brands Scaled" }];
+{ icon: Zap, value: "10+", label: "Brands Scaled" }];
 
 
 const HeroSection = () =>
@@ -88,7 +88,7 @@ const HeroSection = () =>
             
             </div>
             <div className="absolute -bottom-4 -left-4 bg-primary text-primary-foreground px-5 py-3 rounded-xl shadow-lg">
-              <p className="font-heading text-sm font-bold">20+ Brands Scaled</p>
+              <p className="font-heading text-sm font-bold">10+ Brands Scaled</p>
             </div>
           </div>
         </motion.div>
