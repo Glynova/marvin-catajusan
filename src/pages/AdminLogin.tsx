@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, Loader2 } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -47,8 +48,10 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <a href="/" className="font-heading text-2xl font-bold gradient-text">GLYNOVA</a>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <a href="/" aria-label="Glynova home" className="inline-flex items-center justify-center">
+            <BrandLogo size="lg" />
+          </a>
           <p className="text-muted-foreground text-sm mt-2">Admin Portal</p>
         </div>
         <form onSubmit={handleLogin} className="card-glass p-8 space-y-4">

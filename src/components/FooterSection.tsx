@@ -1,65 +1,119 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Mail, Phone, Briefcase } from "lucide-react";
+import { Mail, Phone, Briefcase, Github, Download } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
+import { useSyncedResume } from "@/lib/resumeConfig";
 
-const FooterSection = () => (
-  <footer className="border-t border-border">
-    {/* CTA Banner */}
-    <div className="section-container section-padding text-center">
-      <h2 className="font-heading text-3xl lg:text-4xl font-bold mb-4">
-        Ready to <span className="gradient-text">Scale Your Business</span>?
-      </h2>
-      <p className="text-muted-foreground max-w-lg mx-auto mb-8">
-        Stop guessing. Start growing. Let's build a marketing system that works — so you can focus on what you do best.
-      </p>
-      <Button variant="hero" size="lg" asChild>
-        <a href="#contact">
-          Book Your Free Strategy Call <ArrowRight className="ml-1" />
-        </a>
-      </Button>
-    </div>
+const FooterSection = () => {
+  const { resume } = useSyncedResume();
 
-    {/* Contact Details */}
-    <div className="border-t border-border">
-      <div className="section-container py-10">
-        <div className="grid sm:grid-cols-3 gap-6 text-center">
-          <a href="mailto:pugoymarvin14@gmail.com" className="flex flex-col items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <Mail className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Personal Email</span>
-            <span className="text-sm text-foreground group-hover:text-primary transition-colors">pugoymarvin14@gmail.com</span>
-          </a>
-          <a href="mailto:glynova.os@gmail.com" className="flex flex-col items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <Briefcase className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Business Email</span>
-            <span className="text-sm text-foreground group-hover:text-primary transition-colors">glynova.os@gmail.com</span>
-          </a>
-          <a href="https://wa.me/639630167938" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <Phone className="h-5 w-5 text-primary" />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">WhatsApp</span>
-            <span className="text-sm text-foreground group-hover:text-primary transition-colors">+63 963 016 7938</span>
-          </a>
+  return (
+    <footer className="border-t border-border bg-background">
+      <div className="section-container py-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-border">
+          <div>
+            <a href="#" aria-label="Glynova home" className="inline-flex items-center">
+              <BrandLogo size="md" />
+            </a>
+            <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+              Marvin Catajusan — Full-Stack Developer, Business Operation System Builder, and Paid Media Specialist.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              Navigation
+            </p>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">About</a></li>
+              <li><a href="#services" className="text-muted-foreground hover:text-foreground transition-colors">Capabilities</a></li>
+              <li><a href="#portfolio" className="text-muted-foreground hover:text-foreground transition-colors">Work &amp; Case Studies</a></li>
+              <li><a href="#process" className="text-muted-foreground hover:text-foreground transition-colors">Process</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              Direct Contact
+            </p>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <a
+                  href="mailto:pugoymarvin14@gmail.com"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Mail className="h-4 w-4 text-primary shrink-0" />
+                  <span>pugoymarvin14@gmail.com</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:glynova.os@gmail.com"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Briefcase className="h-4 w-4 text-primary shrink-0" />
+                  <span>glynova.os@gmail.com</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://wa.me/639630167938"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Phone className="h-4 w-4 text-primary shrink-0" />
+                  <span>+63 963 016 7938</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              Links &amp; Portal
+            </p>
+            <ul className="space-y-2.5 text-sm">
+              {resume.published && (
+                <li>
+                  <a
+                    href={resume.fileUrl}
+                    download={resume.downloadFilename}
+                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Download className="h-4 w-4 text-primary shrink-0" />
+                    <span>{resume.buttonLabel}</span>
+                  </a>
+                </li>
+              )}
+              <li>
+                <a
+                  href="https://github.com/Glynova"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Github className="h-4 w-4 text-primary shrink-0" />
+                  <span>github.com/Glynova</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/admin-portal"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Admin Workspace
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} Marvin Catajusan · Glynova. All rights reserved.</p>
+          <p className="font-medium">Full-Stack · Business Ops · Paid Media</p>
         </div>
       </div>
-    </div>
-
-    {/* Bottom */}
-    <div className="border-t border-border">
-      <div className="section-container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <a href="/admin-portal" className="font-heading text-lg font-bold gradient-text">GLYNOVA</a>
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Glynova. All rights reserved.</p>
-        <div className="flex gap-6">
-          {["LinkedIn", "Twitter", "Instagram"].map((s) => (
-            <a key={s} href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors">{s}</a>
-          ))}
-        </div>
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default FooterSection;

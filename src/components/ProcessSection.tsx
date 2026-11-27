@@ -1,36 +1,30 @@
 import { motion } from "framer-motion";
-import { Search, Compass, Rocket, BarChart3, Repeat } from "lucide-react";
+import { Search, Compass, Code2, LineChart } from "lucide-react";
 
 const steps = [
   {
     icon: Search,
     step: "01",
-    title: "Audit & Discovery",
-    desc: "Deep-dive into your business, competitors, audience, and current marketing. I identify gaps, opportunities, and quick wins before spending a single dollar.",
+    title: "System & Funnel Audit",
+    desc: "Map your current web stack, internal operations bottlenecks, CRM tracking gaps, and paid media unit economics before writing code or launching ads.",
   },
   {
     icon: Compass,
     step: "02",
-    title: "Strategy & Funnel Design",
-    desc: "Custom marketing blueprint with channel strategy, funnel architecture, messaging framework, and KPI targets — tailored to your goals and budget.",
+    title: "Architecture & Growth Blueprint",
+    desc: "Define the database schema, webhook automation plan, conversion landing pages, and channel budget allocation aligned to net revenue targets.",
   },
   {
-    icon: Rocket,
+    icon: Code2,
     step: "03",
-    title: "Launch Campaigns",
-    desc: "Execute across paid ads, organic content, email sequences, and landing pages. Everything goes live with tracking and attribution in place from day one.",
+    title: "Build, Integrate & Launch",
+    desc: "Ship the React/Next.js application, wire Supabase/CRM/ERP workflows, configure server-side Conversion APIs, and launch acquisition campaigns.",
   },
   {
-    icon: BarChart3,
+    icon: LineChart,
     step: "04",
-    title: "Optimize Conversions",
-    desc: "Continuous A/B testing, creative iteration, and funnel optimization. I squeeze maximum ROI from every touchpoint based on real performance data.",
-  },
-  {
-    icon: Repeat,
-    step: "05",
-    title: "Scale & Automate",
-    desc: "Once we find what works, we scale it. Marketing automation, retargeting, and systems ensure growth continues without 10x-ing your workload.",
+    title: "Telemetry, Optimize & Scale",
+    desc: "Monitor real-time pipeline conversion, iterate ad creatives and landing UX, and automate repetitive ops as lead volume scales.",
   },
 ];
 
@@ -38,54 +32,43 @@ const ProcessSection = () => (
   <section id="process" className="section-padding border-t border-border">
     <div className="section-container">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-center max-w-2xl mx-auto mb-10 md:mb-16"
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-2xl mb-12"
       >
-        <span className="text-primary text-sm font-medium uppercase tracking-widest">My Process</span>
-        <h2 className="font-heading text-3xl lg:text-4xl font-bold mt-3 mb-4">
-          A Proven <span className="gradient-text">5-Step System</span>
+        <p className="text-xs font-medium tabular-nums text-primary uppercase tracking-widest mb-3">
+          Delivery Process
+        </p>
+        <h2 className="font-heading text-3xl lg:text-4xl font-bold mb-4">
+          How Every Engagement <span className="gradient-text">Ships &amp; Scales</span>
         </h2>
-        <p className="text-muted-foreground">From audit to autopilot — here's exactly how I take brands from stagnant to scaling.</p>
+        <p className="text-muted-foreground">
+          A four-stage engineering and growth workflow built to keep software, internal operations, and ad spend tightly synchronized.
+        </p>
       </motion.div>
 
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-border -translate-x-1/2" />
-
-        <div className="space-y-12 md:space-y-0">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.step}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={`md:flex items-center gap-8 md:mb-16 last:mb-0 ${i % 2 === 0 ? "" : "md:flex-row-reverse"}`}
-            >
-              <div className={`md:w-1/2 ${i % 2 === 0 ? "md:text-right md:pr-12" : "md:text-left md:pl-12"}`}>
-                <div className={`card-glass p-6 inline-block text-left ${i % 2 === 0 ? "md:ml-auto" : ""}`}>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <s.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <span className="text-xs text-primary font-medium">STEP {s.step}</span>
-                      <h3 className="font-heading text-lg font-bold">{s.title}</h3>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{s.desc}</p>
-                </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {steps.map((s, i) => (
+          <motion.div
+            key={s.step}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="card-glass p-6 flex flex-col"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <s.icon className="h-5 w-5 text-primary" />
               </div>
-
-              {/* Center dot */}
-              <div className="hidden md:flex w-4 h-4 rounded-full bg-primary border-4 border-background absolute left-1/2 -translate-x-1/2 glow-primary" style={{ top: `${i * 25 + 2}%` }} />
-
-              <div className="md:w-1/2" />
-            </motion.div>
-          ))}
-        </div>
+              <span className="font-medium tabular-nums text-xs text-primary tabular-nums">{s.step}.</span>
+            </div>
+            <h3 className="font-heading text-lg font-bold text-foreground mb-2">{s.title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+          </motion.div>
+        ))}
       </div>
     </div>
   </section>
